@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>ACB Sistema</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a6b3a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="ACB Sistema">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+:root{
+  --green:#1a6b3a;--green2:#2d8a52;--green3:#e8f5ed;
+  --gold:#f59e0b;--gold2:#fef3c7;
+  --dark:#0f3d21;--text:#1a1a1a;--text2:#555;--text3:#888;
+  --border:#e0e8e3;--bg:#f4f7f5;--white:#fff;
+  --red:#ef4444;--blue:#3b82f6;--sidebar:240px;
+}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s}
+#splash.hide{opacity:0;pointer-events:none}
+.splash-logo{width:110px;height:110px;margin-bottom:20px;display:flex;align-items:center;justify-content:center}
+.splash-title{color:#fff;font-size:28px;font-weight:800;letter-spacing:3px;margin-bottom:6px}
+.splash-sub{color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:40px}
+.splash-bar-wrap{width:200px;height:3px;background:#1a3d28;border-radius:3px;overflow:hidden}
+.splash-bar{height:100%;background:linear-gradient(90deg,var(--green2),var(--gold));animation:load 2.2s ease forwards}
+@keyframes load{from{width:0}to{width:100%}}
+
+/* LOGIN */
+#login-screen{display:none;position:fixed;inset:0;background:linear-gradient(135deg,var(--dark) 0%,#1a4d2a 100%);align-items:center;justify-content:center;flex-direction:column}
+#login-screen.show{display:flex}
+.login-box{background:#fff;border-radius:16px;padding:36px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo-icon{width:90px;height:90px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
+.login-logo h1{font-size:20px;font-weight:800;color:var(--dark);letter-spacing:1px}
+.login-logo p{font-size:11px;color:var(--text3);margin-top:2px}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.login-field input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:#fafafa;transition:border-color .2s}
+.login-field input:focus{outline:none;border-color:var(--green);background:#fff}
+.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .2s}
+.login-btn:hover{opacity:.9}
+.login-err{background:#fef2f2;border:1px solid #fecaca;color:var(--red);padding:10px 14px;border-radius:8px;font-size:12px;margin-top:12px;display:none}
+.login-err.show{display:block}
+
+/* APP */
+#app{display:none}
+#app.show{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--dark);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:200;transition:transform .3s}
+.sidebar-header{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo{display:flex;align-items:center;gap:10px}
+.sidebar-logo-icon{width:40px;height:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.sidebar-logo-text{color:#fff;font-weight:800;font-size:14px;letter-spacing:1px;line-height:1.2}
+.sidebar-logo-sub{color:rgba(255,255,255,.4);font-size:9px;letter-spacing:.5px}
+.sidebar-user{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-user-name{color:#fff;font-size:12px;font-weight:700}
+.sidebar-user-role{color:var(--gold);font-size:10px;margin-top:1px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-group{margin-bottom:4px}
+.nav-group-label{padding:10px 16px 4px;font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;border-left:3px solid transparent;font-size:13px}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-item.active{background:rgba(26,107,58,.4);color:#fff;border-left-color:var(--gold)}
+.nav-item-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08)}
+.logout-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.5);cursor:pointer;font-size:12px;transition:color .2s}
+.logout-btn:hover{color:#fff}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:16px;font-weight:800;color:var(--dark)}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.content{padding:24px;flex:1}
+
+/* CARDS */
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid var(--border)}
+.card-title{font-size:12px;font-weight:800;color:var(--dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--green3)}
+.card-title span{color:var(--green)}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+
+/* KPI CARDS */
+.kpi{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid var(--border);border-left:4px solid var(--green)}
+.kpi-val{font-size:32px;font-weight:800;color:var(--dark)}
+.kpi-label{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.kpi-sub{font-size:12px;color:var(--green2);margin-top:4px;font-weight:600}
+
+/* BTNS */
+.btn{padding:10px 18px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:var(--green2)}
+.btn-outline{background:none;border:1.5px solid var(--green);color:var(--green)}
+.btn-outline:hover{background:var(--green3)}
+.btn-red{background:var(--red);color:#fff}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:6px}
+.btn-gold{background:var(--gold);color:#fff}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--green3);padding:10px 14px;font-size:10px;font-weight:800;color:var(--dark);text-align:left;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody td{padding:11px 14px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border)}
+tbody tr:hover{background:#fafcfa}
+tbody tr:last-child td{border-bottom:none}
+
+/* FORM */
+.form-row{display:grid;gap:14px;margin-bottom:14px}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-group label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:#fafafa;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--green);background:#fff}
+.form-group textarea{resize:vertical;min-height:70px}
+.form-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+
+/* BADGE */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase}
+.badge-green{background:var(--green3);color:var(--green)}
+.badge-gold{background:var(--gold2);color:#92400e}
+.badge-red{background:#fef2f2;color:var(--red)}
+.badge-blue{background:#eff6ff;color:var(--blue)}
+.badge-gray{background:#f3f4f6;color:#6b7280}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:10}
+.modal-header h2{font-size:15px;font-weight:800;color:var(--dark)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);padding:4px 8px;border-radius:6px}
+.modal-close:hover{background:var(--border);color:var(--text)}
+.modal-body{padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+
+/* TABS */
+.page-tabs{display:flex;gap:4px;margin-bottom:20px;background:#fff;padding:6px;border-radius:10px;border:1px solid var(--border);width:fit-content}
+.page-tab{padding:8px 16px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;color:var(--text3);transition:all .2s}
+.page-tab.active{background:var(--green);color:#fff}
+
+/* SEARCH BAR */
+.search-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.search-input{padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);background:#fff;min-width:220px}
+.search-input:focus{outline:none;border-color:var(--green)}
+
+/* STATUS PILL */
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600}
+.status-dot::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-state-icon{font-size:48px;margin-bottom:12px}
+.empty-state h3{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:6px}
+
+/* PROGRESS BAR */
+.progress-wrap{background:#e8f5ed;border-radius:10px;height:8px;overflow:hidden;margin-top:6px}
+.progress-bar{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--green),var(--green2));transition:width .5s}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.alert-success{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+.alert-error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.alert-info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+
+/* MOBILE */
+.menu-toggle{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(--dark);padding:4px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .main{margin-left:0}
+  .menu-toggle{display:block}
+  .grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr}
+  .form-row.cols-2,.form-row.cols-3{grid-template-columns:1fr}
+  .content{padding:16px}
+}
+
+.loading{text-align:center;padding:40px;color:var(--text3);font-size:14px}
+.spin{display:inline-block;animation:spin 1s linear infinite;font-size:24px}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+.page{display:none}
+.page.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo"><img src="logo-acb.png" alt="ACB" style="width:110px;height:110px;object-fit:contain"></div>
+  <div class="splash-title">ACB SISTEMA</div>
+  <div class="splash-sub">Associação Cristã de Base</div>
+  <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon"><img src="logo-acb.png" alt="ACB" style="width:90px;height:90px;object-fit:contain"></div>
+      <h1>ACB SISTEMA</h1>
+      <p>Associação Cristã de Base</p>
+    </div>
+    <div class="login-field">
+      <label>E-mail</label>
+      <input id="login-email" type="email" placeholder="seu@email.com.br" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input id="login-senha" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="fazerLogin()">Entrar no Sistema</button>
+    <div id="login-err" class="login-err">E-mail ou senha inválidos.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon"><img src="logo-acb.png" alt="ACB" style="width:40px;height:40px;object-fit:contain"></div>
+        <div>
+          <div class="sidebar-logo-text">ACB SISTEMA</div>
+          <div class="sidebar-logo-sub">Associação Cristã de Base</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name" id="sidebar-user-name">—</div>
+      <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">Geral</div>
+        <div class="nav-item active" onclick="navigate('dashboard')">
+          <span class="nav-item-icon">🏠</span> Dashboard
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">Programas</div>
+        <div class="nav-item" onclick="navigate('programas')">
+          <span class="nav-item-icon">📋</span> Programas
+        </div>
+        <div class="nav-item" onclick="navigate('contratos')">
+          <span class="nav-item-icon">📄</span> Contratos
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">Beneficiários</div>
+        <div class="nav-item" onclick="navigate('beneficiarios')">
+          <span class="nav-item-icon">👨‍👩‍👧‍👦</span> Beneficiários
+        </div>
+        <div class="nav-item" onclick="navigate('municipios')">
+          <span class="nav-item-icon">📍</span> Municípios
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">Execução</div>
+        <div class="nav-item" onclick="navigate('execucao')">
+          <span class="nav-item-icon">⚙️</span> Execução Físico-Financeira
+        </div>
+        <div class="nav-item" onclick="navigate('relatorios')">
+          <span class="nav-item-icon">📊</span> Relatórios
+        </div>
+      </div>
+      <div class="nav-group" id="nav-admin" style="display:none">
+        <div class="nav-group-label">Administração</div>
+        <div class="nav-item" onclick="navigate('tecnicos')">
+          <span class="nav-item-icon">👷</span> Técnicos
+        </div>
+        <div class="nav-item" onclick="navigate('usuarios')">
+          <span class="nav-item-icon">👥</span> Usuários
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="logout-btn" onclick="fazerLogout()">🚪 Sair do sistema</div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);text-align:center">
+        <div style="font-size:8px;color:rgba(255,255,255,.25);letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Desenvolvido por</div>
+        <img src="Falcioni.jpg" alt="Falcioni Consultoria" style="height:42px;width:auto;opacity:.85">
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+      </div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div id="dash-kpis" class="grid-4" style="margin-bottom:20px"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Programas <span>Ativos</span></div>
+            <div id="dash-programas"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Últimos <span>Beneficiários</span> Cadastrados</div>
+            <div id="dash-benef"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Execução <span>por Município</span></div>
+          <div id="dash-municipios"></div>
+        </div>
+      </div>
+
+      <!-- PROGRAMAS -->
+      <div class="page" id="page-programas">
+        <div class="search-bar">
+          <input class="search-input" type="text" placeholder="🔍 Buscar programa..." oninput="filtrarProgramas(this.value)">
+          <button class="btn btn-green" onclick="abrirModalPrograma()">+ Novo Programa</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Programa</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="tabela-programas"><tr><td colspan="4" class="loading"><span class="spin">⏳</span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTRATOS -->
+      <div class="page" id="page-contratos">
+        <div class="search-bar">
+          <input class="search-input" type="text" placeholder="🔍 Buscar contrato..." oninput="filtrarContratos(this.value)">
+          <select class="search-input" style="min-width:160px" onchange="filtrarContratosProg(this.value)" id="filtro-prog-contrato">
+            <option value="">Todos os programas</option>
+          </select>
+          <button class="btn btn-green" onclick="abrirModalContrato()">+ Novo Contrato</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Número</th><th>Programa</th><th>Financiador</th><th>Valor Total</th><th>Período</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="tabela-contratos"><tr><td colspan="7" class="loading"><span class="spin">⏳</span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- BENEFICIÁRIOS -->
+      <div class="page" id="page-beneficiarios">
+        <div class="search-bar">
+          <input class="search-input" type="text" placeholder="🔍 Buscar beneficiário..." oninput="filtrarBenef(this.value)">
+          <select class="search-input" style="min-width:160px" onchange="filtrarBenefProg(this.value)" id="filtro-prog-benef">
+            <option value="">Todos os programas</option>
+          </select>
+          <select class="search-input" style="min-width:140px" onchange="filtrarBenefMun(this.value)" id="filtro-mun-benef">
+            <option value="">Todos os municípios</option>
+          </select>
+          <button class="btn btn-green" onclick="abrirModalBenef()">+ Novo Beneficiário</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Nome</th><th>Município</th><th>Programa</th><th>% Física</th><th>% Financeira</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="tabela-benef"><tr><td colspan="7" class="loading"><span class="spin">⏳</span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MUNICÍPIOS -->
+      <div class="page" id="page-municipios">
+        <div class="search-bar">
+          <input class="search-input" type="text" placeholder="🔍 Buscar município..." oninput="filtrarMun(this.value)">
+          <select class="search-input" style="min-width:160px" onchange="filtrarMunEst(this.value)">
+            <option value="">Todos os estados</option>
+            <option>CE</option><option>PE</option><option>PB</option><option>RN</option>
+            <option>PI</option><option>MA</option><option>BA</option><option>AL</option><option>SE</option>
+          </select>
+          <button class="btn btn-green" onclick="abrirModalMunicipio()">+ Novo Município</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Município</th><th>Estado</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="tabela-municipios"><tr><td colspan="4" class="loading"><span class="spin">⏳</span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXECUÇÃO -->
+      <div class="page" id="page-execucao">
+        <div class="search-bar">
+          <select class="search-input" style="min-width:200px" onchange="carregarExecucaoPorContrato(this.value)" id="sel-contrato-exec">
+            <option value="">Selecione um contrato...</option>
+          </select>
+          <button class="btn btn-green" onclick="abrirModalExecucao()">+ Registrar Execução</button>
+        </div>
+        <div id="execucao-resumo" class="grid-5" style="margin-bottom:16px"></div>
+        <div id="painel-financeiro" style="margin-bottom:16px"></div>
+        <div class="card">
+          <div class="card-title">Registros de <span>Execução</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Data</th><th>Atividade</th><th>Município</th><th>Qtd Física</th><th>Valor R$</th><th>Técnico</th><th>Obs</th><th>Ações</th></tr></thead>
+              <tbody id="tabela-execucao"><tr><td colspan="8" class="loading">Selecione um contrato acima</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RELATÓRIOS -->
+      <div class="page" id="page-relatorios">
+        <div class="grid-2">
+          <div class="card" style="cursor:pointer" onclick="relBenefPorMunicipio()">
+            <div style="font-size:36px;margin-bottom:10px">📍</div>
+            <div style="font-weight:800;font-size:14px;color:var(--dark);margin-bottom:4px">Beneficiários por Município</div>
+            <div style="font-size:12px;color:var(--text3)">Lista de famílias cadastradas por município e programa</div>
+            <button class="btn btn-green" style="margin-top:14px;width:100%">Gerar Relatório PDF</button>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="relExecucaoFinanceira()">
+            <div style="font-size:36px;margin-bottom:10px">💰</div>
+            <div style="font-weight:800;font-size:14px;color:var(--dark);margin-bottom:4px">Execução Físico-Financeira</div>
+            <div style="font-size:12px;color:var(--text3)">Resumo geral por contrato: contratado vs realizado</div>
+            <button class="btn btn-green" style="margin-top:14px;width:100%">Gerar Relatório PDF</button>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="relProgramaCompleto()">
+            <div style="font-size:36px;margin-bottom:10px">📋</div>
+            <div style="font-weight:800;font-size:14px;color:var(--dark);margin-bottom:4px">Resumo por Programa</div>
+            <div style="font-size:12px;color:var(--text3)">Visão geral de todos os contratos e execuções do programa</div>
+            <button class="btn btn-green" style="margin-top:14px;width:100%">Gerar Relatório PDF</button>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="relBenefCompleto()">
+            <div style="font-size:36px;margin-bottom:10px">👨‍👩‍👧‍👦</div>
+            <div style="font-weight:800;font-size:14px;color:var(--dark);margin-bottom:4px">Lista Completa de Beneficiários</div>
+            <div style="font-size:12px;color:var(--text3)">Todos os beneficiários cadastrados com status e programa</div>
+            <button class="btn btn-green" style="margin-top:14px;width:100%">Gerar Relatório PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TÉCNICOS -->
+      <div class="page" id="page-tecnicos">
+        <div class="search-bar">
+          <input class="search-input" type="text" placeholder="🔍 Buscar técnico..." oninput="filtrarTecnicos(this.value)">
+          <button class="btn btn-green" onclick="abrirModalTecnico()">+ Novo Técnico</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Nome</th><th>Cargo</th><th>E-mail</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="tabela-tecnicos"><tr><td colspan="5" class="loading"><span class="spin">⏳</span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- USUÁRIOS -->
+      <div class="page" id="page-usuarios">
+        <div class="search-bar">
+          <input class="search-input" type="text" placeholder="🔍 Buscar usuário..." oninput="filtrarUsuarios(this.value)">
+          <button class="btn btn-green" onclick="abrirModalUsuario()">+ Novo Usuário</button>
+        </div>
+        <div class="alert alert-info">Os usuários criados aqui poderão acessar o sistema com e-mail e senha.</div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="tabela-usuarios"><tr><td colspan="5" class="loading"><span class="spin">⏳</span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /app -->
+
+<!-- MODAIS -->
+<!-- Modal Programa -->
+<div class="modal-overlay" id="modal-programa">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-programa-title">Novo Programa</h2>
+      <button class="modal-close" onclick="fecharModal('modal-programa')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="prog-id">
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Nome do Programa *</label><input id="prog-nome" placeholder="Ex: Programa Cisterna"></div>
+        <div class="form-group"><label>Sigla</label><input id="prog-sigla" placeholder="Ex: P1MC"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Descrição</label><textarea id="prog-desc" placeholder="Descreva o programa..."></textarea></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Financiador Principal</label><input id="prog-financiador" placeholder="Ex: MDS, Governo Estadual..."></div>
+        <div class="form-group"><label>Status</label>
+          <select id="prog-status"><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-programa')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarPrograma()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Contrato -->
+<div class="modal-overlay" id="modal-contrato">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h2 id="modal-contrato-title">Novo Contrato</h2>
+      <button class="modal-close" onclick="fecharModal('modal-contrato')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cont-id">
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Programa *</label>
+          <select id="cont-programa"><option value="">Selecione...</option></select>
+        </div>
+        <div class="form-group"><label>Número do Contrato *</label><input id="cont-numero" placeholder="Ex: TC 973859/2025"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Subcontrato</label><input id="cont-sub" placeholder="Ex: CT 074/2025 - ACB"></div>
+        <div class="form-group"><label>Financiador *</label><input id="cont-financiador" placeholder="Ex: MDS"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Objeto / Descrição</label><textarea id="cont-objeto" placeholder="Objeto do contrato..."></textarea></div>
+      </div>
+      <div class="form-row cols-3">
+        <div class="form-group"><label>Valor Total (R$) *</label><input id="cont-valor" type="number" placeholder="0,00"></div>
+        <div class="form-group"><label>Data Início *</label><input id="cont-inicio" type="date"></div>
+        <div class="form-group"><label>Data Fim *</label><input id="cont-fim" type="date"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Meta Física Total</label><input id="cont-meta-fisica" type="number" placeholder="Ex: 720 cisternas"></div>
+        <div class="form-group"><label>Unidade de Medida</label><input id="cont-unidade" placeholder="Ex: Cisterna, Família..."></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Status</label>
+          <select id="cont-status"><option value="em_andamento">Em Andamento</option><option value="concluido">Concluído</option><option value="suspenso">Suspenso</option></select>
+        </div>
+        <div class="form-group"><label>Municípios de Atuação</label><input id="cont-municipios" placeholder="Ex: Crato, Juazeiro, Barbalha..."></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-contrato')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarContrato()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Beneficiário -->
+<div class="modal-overlay" id="modal-benef">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h2 id="modal-benef-title">Novo Beneficiário</h2>
+      <button class="modal-close" onclick="fecharModal('modal-benef')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="benef-id">
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Nome Completo *</label><input id="benef-nome" placeholder="Nome do beneficiário"></div>
+        <div class="form-group"><label>CPF</label><input id="benef-cpf" placeholder="000.000.000-00" oninput="mascaraCPF(this)"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Telefone</label><input id="benef-tel" placeholder="(00) 00000-0000" oninput="mascaraTel(this)"></div>
+        <div class="form-group"><label>Data de Nascimento</label><input id="benef-nasc" type="date"></div>
+      </div>
+      <div class="form-row cols-3">
+        <div class="form-group"><label>Estado *</label>
+          <select id="benef-estado" onchange="carregarMunicipiosPorEstado(this.value,'benef-municipio')">
+            <option value="">Selecione...</option>
+            <option>CE</option><option>PE</option><option>PB</option><option>RN</option>
+            <option>PI</option><option>MA</option><option>BA</option><option>AL</option><option>SE</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Município *</label>
+          <select id="benef-municipio"><option value="">Selecione o estado...</option></select>
+        </div>
+        <div class="form-group"><label>Comunidade</label><input id="benef-comunidade" placeholder="Nome da comunidade"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Programa *</label>
+          <select id="benef-programa" onchange="carregarContratosPorPrograma(this.value,'benef-contrato')"><option value="">Selecione...</option></select>
+        </div>
+        <div class="form-group"><label>Contrato</label>
+          <select id="benef-contrato"><option value="">Selecione o programa...</option></select>
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Status *</label>
+          <select id="benef-status">
+            <option value="selecionado">Selecionado</option>
+            <option value="cadastrado">Cadastrado</option>
+            <option value="capacitado">Capacitado</option>
+            <option value="em_construcao">Em Construção</option>
+            <option value="concluido">Concluído</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Data de Cadastro</label><input id="benef-data" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Observações</label><textarea id="benef-obs" placeholder="Informações adicionais..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-benef')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarBenef()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Município -->
+<div class="modal-overlay" id="modal-municipio">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <h2 id="modal-mun-title">Novo Município</h2>
+      <button class="modal-close" onclick="fecharModal('modal-municipio')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mun-id">
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Nome do Município *</label><input id="mun-nome" placeholder="Ex: Crato"></div>
+        <div class="form-group"><label>Estado *</label>
+          <select id="mun-estado">
+            <option value="">Selecione...</option>
+            <option>CE</option><option>PE</option><option>PB</option><option>RN</option>
+            <option>PI</option><option>MA</option><option>BA</option><option>AL</option><option>SE</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Status</label>
+          <select id="mun-status"><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-municipio')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarMunicipio()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Atividades -->
+<div class="modal-overlay" id="modal-atividades">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <h2>⚙️ Gerenciar Atividades</h2>
+      <button class="modal-close" onclick="fecharModal('modal-atividades')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row cols-2" style="margin-bottom:12px">
+        <div class="form-group"><label>Contrato</label>
+          <select id="atv-contrato" onchange="listarAtividades(this.value)"><option value="">Selecione...</option></select>
+        </div>
+        <div class="form-group" style="justify-content:flex-end;padding-top:20px">
+          <button class="btn btn-green" onclick="abrirFormAtividade()">+ Nova Atividade</button>
+        </div>
+      </div>
+      <div id="form-nova-atv" style="display:none;background:#f8fafc;border-radius:8px;padding:14px;margin-bottom:12px;border:1.5px solid #e2e8f0">
+        <input type="hidden" id="atv-edit-id">
+        <div class="form-group"><label>Nome da Atividade *</label>
+          <input id="atv-nome" placeholder="Ex: Cisternas, Capacitação, Visita técnica...">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-outline btn-sm" onclick="fecharFormAtividade()">Cancelar</button>
+          <button class="btn btn-green btn-sm" onclick="salvarAtividade()">💾 Salvar</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Atividade</th><th>Ações</th></tr></thead>
+          <tbody id="tabela-atividades"><tr><td colspan="2" class="loading">Selecione um contrato</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharAtividadesVoltarExec()">✓ Concluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Repasse -->
+<div class="modal-overlay" id="modal-repasse">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h2>💰 Repasses Recebidos — <span id="repasse-contrato-nome" style="color:var(--green)"></span></h2>
+      <button class="modal-close" onclick="fecharModal('modal-repasse')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="repasse-contrato-id">
+      <div style="background:#f0faf4;border-radius:8px;padding:14px;margin-bottom:14px;border:1.5px solid #c8e6c9">
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">+ Nova Parcela</div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Data *</label>
+            <input id="repasse-data" type="date">
+          </div>
+          <div class="form-group"><label>Valor (R$) *</label>
+            <input id="repasse-valor" type="number" placeholder="0,00">
+          </div>
+        </div>
+        <div class="form-group"><label>Descrição</label>
+          <input id="repasse-desc" placeholder="Ex: 1ª parcela, complemento...">
+        </div>
+        <button class="btn btn-green btn-sm" onclick="salvarRepasse()" style="margin-top:8px">💾 Registrar Parcela</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Descrição</th><th style="text-align:right">Valor</th><th></th></tr></thead>
+          <tbody id="tabela-repasses"><tr><td colspan="4" style="text-align:center;color:#aaa;padding:14px">Nenhuma parcela registrada</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-repasse')">✓ Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Execução -->
+<div class="modal-overlay" id="modal-execucao">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h2 id="modal-exec-title">Registrar Execução</h2>
+      <button class="modal-close" onclick="fecharModal('modal-execucao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="exec-id">
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Contrato *</label>
+          <select id="exec-contrato"><option value="">Selecione...</option></select>
+        </div>
+        <div class="form-group"><label>Atividade *</label>
+          <input id="exec-atividade" placeholder="Ex: Cisterna, Capacitação...">
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Município *</label>
+          <select id="exec-municipio"><option value="">Selecione...</option></select>
+        </div>
+        <div class="form-group"><label>Data *</label><input id="exec-data" type="date"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Quantidade Física</label><input id="exec-qtd" type="number" placeholder="0"></div>
+        <div class="form-group"><label>Valor Registrado (R$)</label><input id="exec-valor" type="number" placeholder="0,00"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Técnico Responsável</label>
+          <select id="exec-tecnico"><option value="">Selecione...</option></select>
+        </div>
+        <div class="form-group"><label>Status da Execução</label>
+          <select id="exec-status"><option value="registrado">Registrado</option><option value="verificado">Verificado</option><option value="concluido">Concluído</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Observações</label><textarea id="exec-obs" placeholder="Informações adicionais..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-execucao')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarExecucao()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Técnico -->
+<div class="modal-overlay" id="modal-tecnico">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h2 id="modal-tec-title">Novo Técnico</h2>
+      <button class="modal-close" onclick="fecharModal('modal-tecnico')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tec-id">
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Nome Completo *</label><input id="tec-nome" placeholder="Nome do técnico"></div>
+        <div class="form-group"><label>Cargo</label><input id="tec-cargo" placeholder="Ex: Técnico Social, Pedreiro..."></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>E-mail</label><input id="tec-email" type="email" placeholder="email@exemplo.com"></div>
+        <div class="form-group"><label>Telefone</label><input id="tec-tel" placeholder="(00) 00000-0000"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>CPF</label><input id="tec-cpf" placeholder="000.000.000-00"></div>
+        <div class="form-group"><label>Status</label>
+          <select id="tec-status"><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-tecnico')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarTecnico()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Usuário -->
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h2 id="modal-usr-title">Novo Usuário</h2>
+      <button class="modal-close" onclick="fecharModal('modal-usuario')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="usr-id">
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Nome Completo *</label><input id="usr-nome" placeholder="Nome do usuário"></div>
+        <div class="form-group"><label>Perfil *</label>
+          <select id="usr-perfil">
+            <option value="tecnico">Técnico</option>
+            <option value="financeiro">Financeiro</option>
+            <option value="coordenador">Coordenador</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>E-mail *</label><input id="usr-email" type="email" placeholder="email@exemplo.com"></div>
+        <div class="form-group"><label>Senha Inicial *</label><input id="usr-senha" type="password" placeholder="Mínimo 6 caracteres"></div>
+      </div>
+      <div class="alert alert-info" style="margin-top:4px">O usuário poderá trocar a senha após o primeiro acesso.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-usuario')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarUsuario()">💾 Criar Usuário</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+// ─── FIREBASE CONFIG ───────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDRKvWIml2uvhXQ7efxNo5g7b30fKsYhKk",
+  authDomain: "acb-sistema.firebaseapp.com",
+  projectId: "acb-sistema",
+  storageBucket: "acb-sistema.firebasestorage.app",
+  messagingSenderId: "491918625402",
+  appId: "1:491918625402:web:6c1b06fd40a017877589c3"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// ─── STATE ─────────────────────────────────────────────────────
+let currentUser = null, currentPerfil = 'tecnico';
+let _programas = [], _contratos = [], _municipios = [], _tecnicos = [];
+let _benef = [], _execucoes = [], _usuarios = [], _repasses = [];
+let _filtroContratoExec = '';
+
+// ─── SPLASH ────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(() => document.getElementById('splash').style.display = 'none', 700);
+  }, 2400);
+});
+
+// ─── AUTH ──────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    currentUser = user;
+    await carregarPerfilUsuario(user.uid, user.email);
+    document.getElementById('login-screen').classList.remove('show');
+    document.getElementById('app').classList.add('show');
+    iniciarApp();
+  } else {
+    document.getElementById('login-screen').classList.add('show');
+    document.getElementById('app').classList.remove('show');
+  }
+});
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const err = document.getElementById('login-err');
+  err.classList.remove('show');
+  if (!email || !senha) { err.textContent = 'Preencha e-mail e senha.'; err.classList.add('show'); return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, senha);
+  } catch(e) {
+    err.textContent = 'E-mail ou senha inválidos.';
+    err.classList.add('show');
+  }
+}
+
+document.getElementById('login-senha').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+
+async function fazerLogout() {
+  if (confirm('Deseja sair do sistema?')) await auth.signOut();
+}
+
+async function carregarPerfilUsuario(uid, email) {
+  try {
+    const doc = await db.collection('usuarios').doc(uid).get();
+    if (doc.exists) {
+      const d = doc.data();
+      currentPerfil = d.perfil || 'tecnico';
+      document.getElementById('sidebar-user-name').textContent = d.nome || email;
+      document.getElementById('sidebar-user-role').textContent = PERFIS[currentPerfil] || currentPerfil;
+    } else {
+      document.getElementById('sidebar-user-name').textContent = email;
+      document.getElementById('sidebar-user-role').textContent = 'Usuário';
+      currentPerfil = 'admin'; // primeiro acesso = admin
+    }
+    document.getElementById('nav-admin').style.display = (currentPerfil === 'admin' || currentPerfil === 'coordenador') ? 'block' : 'none';
+  } catch(e) { console.error(e); }
+}
+
+const PERFIS = { admin:'Administrador', coordenador:'Coordenador', financeiro:'Financeiro', tecnico:'Técnico' };
+
+// ─── INIT ──────────────────────────────────────────────────────
+async function iniciarApp() {
+  await Promise.all([
+    carregarProgramas(),
+    carregarContratos(),
+    carregarMunicipios(),
+    carregarTecnicos(),
+  ]);
+  atualizarDashboard();
+  carregarBenef();
+  carregarExecucoes();
+  carregarRepasses();
+  carregarUsuarios();
+  preencherSelects();
+}
+
+// ─── NAVIGATION ────────────────────────────────────────────────
+const PAGE_TITLES = {
+  dashboard:'Dashboard', programas:'Programas', contratos:'Contratos',
+  beneficiarios:'Beneficiários', municipios:'Municípios',
+  execucao:'Execução Físico-Financeira', relatorios:'Relatórios',
+  tecnicos:'Técnicos', usuarios:'Usuários'
+};
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes("'"+page+"'")) n.classList.add('active');
+  });
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[page] || page;
+  if (window.innerWidth < 768) closeSidebar();
+}
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.toggle('open');
+  o.classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+// ─── MODAIS ────────────────────────────────────────────────────
+function abrirModal(id) { document.getElementById(id).classList.add('show'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('show'); limparModal(id); }
+function limparModal(id) {
+  document.getElementById(id).querySelectorAll('input,select,textarea').forEach(el => {
+    if (el.type === 'hidden') return;
+    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+}
+
+// ─── FIRESTORE HELPERS ─────────────────────────────────────────
+const col = name => db.collection(name);
+const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
+const fmtDate = ts => ts ? (ts.toDate ? ts.toDate().toLocaleDateString('pt-BR') : new Date(ts).toLocaleDateString('pt-BR')) : '—';
+const today = () => new Date().toISOString().split('T')[0];
+
+// ─── PROGRAMAS ─────────────────────────────────────────────────
+async function carregarProgramas() {
+  const snap = await col('programas').orderBy('nome').get();
+  _programas = snap.docs.map(d => ({id:d.id,...d.data()}));
+  renderProgramas();
+}
+
+function renderProgramas(filtro='') {
+  const lista = filtro ? _programas.filter(p => p.nome.toLowerCase().includes(filtro.toLowerCase())) : _programas;
+  const tb = document.getElementById('tabela-programas');
+  if (!lista.length) { tb.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">📋</div><h3>Nenhum programa cadastrado</h3></div></td></tr>`; return; }
+  tb.innerHTML = lista.map(p => `<tr>
+    <td><strong>${p.nome}</strong>${p.sigla ? ` <span class="badge badge-gray">${p.sigla}</span>` : ''}</td>
+    <td style="color:var(--text3);max-width:300px">${p.descricao||'—'}</td>
+    <td><span class="badge ${p.status==='ativo'?'badge-green':'badge-gray'}">${p.status||'ativo'}</span></td>
+    <td><button class="btn btn-sm btn-outline" onclick="editarPrograma('${p.id}')">✏️</button>
+        <button class="btn btn-sm btn-red" style="margin-left:4px" onclick="excluirPrograma('${p.id}')">🗑️</button></td>
+  </tr>`).join('');
+}
+
+function filtrarProgramas(v) { renderProgramas(v); }
+
+function abrirModalPrograma(id='') {
+  document.getElementById('modal-programa-title').textContent = id ? 'Editar Programa' : 'Novo Programa';
+  document.getElementById('prog-id').value = id;
+  if (id) {
+    const p = _programas.find(x => x.id === id);
+    if (p) {
+      document.getElementById('prog-nome').value = p.nome||'';
+      document.getElementById('prog-sigla').value = p.sigla||'';
+      document.getElementById('prog-desc').value = p.descricao||'';
+      document.getElementById('prog-financiador').value = p.financiador||'';
+      document.getElementById('prog-status').value = p.status||'ativo';
+    }
+  }
+  abrirModal('modal-programa');
+}
+
+function editarPrograma(id) { abrirModalPrograma(id); }
+
+async function salvarPrograma() {
+  const id = document.getElementById('prog-id').value;
+  const nome = document.getElementById('prog-nome').value.trim();
+  if (!nome) { alert('Nome obrigatório.'); return; }
+  const data = {
+    nome, sigla: document.getElementById('prog-sigla').value.trim(),
+    descricao: document.getElementById('prog-desc').value.trim(),
+    financiador: document.getElementById('prog-financiador').value.trim(),
+    status: document.getElementById('prog-status').value,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    if (id) await col('programas').doc(id).update(data);
+    else await col('programas').add({...data, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    fecharModal('modal-programa');
+    await carregarProgramas();
+    preencherSelects();
+    atualizarDashboard();
+  } catch(e) { alert('Erro ao salvar: '+e.message); }
+}
+
+async function excluirPrograma(id) {
+  if (!confirm('Excluir este programa?')) return;
+  await col('programas').doc(id).delete();
+  await carregarProgramas();
+  preencherSelects();
+  atualizarDashboard();
+}
+
+// ─── CONTRATOS ─────────────────────────────────────────────────
+async function carregarContratos() {
+  const snap = await col('contratos').orderBy('numero').get();
+  _contratos = snap.docs.map(d => ({id:d.id,...d.data()}));
+  renderContratos();
+}
+
+function renderContratos(filtro='', progFiltro='') {
+  let lista = _contratos;
+  if (filtro) lista = lista.filter(c => (c.numero+c.financiador).toLowerCase().includes(filtro.toLowerCase()));
+  if (progFiltro) lista = lista.filter(c => c.programaId === progFiltro);
+  const tb = document.getElementById('tabela-contratos');
+  if (!lista.length) { tb.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📄</div><h3>Nenhum contrato cadastrado</h3></div></td></tr>`; return; }
+  tb.innerHTML = lista.map(c => {
+    const prog = _programas.find(p => p.id === c.programaId);
+    const STATUS = {em_andamento:'badge-blue',concluido:'badge-green',suspenso:'badge-gold'};
+    const LABEL = {em_andamento:'Em Andamento',concluido:'Concluído',suspenso:'Suspenso'};
+    return `<tr>
+      <td><strong>${c.numero||'—'}</strong>${c.sub?`<br><small style="color:var(--text3)">${c.sub}</small>`:''}</td>
+      <td>${prog?prog.nome:'—'}</td>
+      <td>${c.financiador||'—'}</td>
+      <td><strong>${fmt(c.valor)}</strong></td>
+      <td style="font-size:11px">${c.inicio||'—'} até<br>${c.fim||'—'}</td>
+      <td><span class="badge ${STATUS[c.status]||'badge-gray'}">${LABEL[c.status]||c.status||'—'}</span></td>
+      <td><button class="btn btn-sm btn-outline" onclick="editarContrato('${c.id}')">✏️</button>
+          <button class="btn btn-sm btn-red" style="margin-left:4px" onclick="excluirContrato('${c.id}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+
+let _filtroContrato='', _filtroProg='';
+function filtrarContratos(v) { _filtroContrato=v; renderContratos(_filtroContrato,_filtroProg); }
+function filtrarContratosProg(v) { _filtroProg=v; renderContratos(_filtroContrato,_filtroProg); }
+
+function abrirModalContrato(id='') {
+  document.getElementById('modal-contrato-title').textContent = id ? 'Editar Contrato' : 'Novo Contrato';
+  document.getElementById('cont-id').value = id;
+  preencherSelectProgramas('cont-programa');
+  if (id) {
+    const c = _contratos.find(x => x.id === id);
+    if (c) {
+      document.getElementById('cont-programa').value = c.programaId||'';
+      document.getElementById('cont-numero').value = c.numero||'';
+      document.getElementById('cont-sub').value = c.sub||'';
+      document.getElementById('cont-financiador').value = c.financiador||'';
+      document.getElementById('cont-objeto').value = c.objeto||'';
+      document.getElementById('cont-valor').value = c.valor||'';
+      document.getElementById('cont-inicio').value = c.inicio||'';
+      document.getElementById('cont-fim').value = c.fim||'';
+      document.getElementById('cont-meta-fisica').value = c.metaFisica||'';
+      document.getElementById('cont-unidade').value = c.unidade||'';
+      document.getElementById('cont-status').value = c.status||'em_andamento';
+      document.getElementById('cont-municipios').value = c.municipiosStr||'';
+    }
+  }
+  abrirModal('modal-contrato');
+}
+function editarContrato(id) { abrirModalContrato(id); }
+
+async function salvarContrato() {
+  const id = document.getElementById('cont-id').value;
+  const numero = document.getElementById('cont-numero').value.trim();
+  const programaId = document.getElementById('cont-programa').value;
+  if (!numero || !programaId) { alert('Programa e número obrigatórios.'); return; }
+  const data = {
+    programaId, numero,
+    sub: document.getElementById('cont-sub').value.trim(),
+    financiador: document.getElementById('cont-financiador').value.trim(),
+    objeto: document.getElementById('cont-objeto').value.trim(),
+    valor: parseFloat(document.getElementById('cont-valor').value)||0,
+    inicio: document.getElementById('cont-inicio').value,
+    fim: document.getElementById('cont-fim').value,
+    metaFisica: parseFloat(document.getElementById('cont-meta-fisica').value)||0,
+    unidade: document.getElementById('cont-unidade').value.trim(),
+    status: document.getElementById('cont-status').value,
+    municipiosStr: document.getElementById('cont-municipios').value.trim(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    if (id) await col('contratos').doc(id).update(data);
+    else await col('contratos').add({...data, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    fecharModal('modal-contrato');
+    await carregarContratos();
+    preencherSelects();
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+async function excluirContrato(id) {
+  if (!confirm('Excluir este contrato?')) return;
+  await col('contratos').doc(id).delete();
+  await carregarContratos();
+}
+
+// ─── MUNICÍPIOS ────────────────────────────────────────────────
+async function carregarMunicipios() {
+  const snap = await col('municipios').orderBy('nome').get();
+  _municipios = snap.docs.map(d => ({id:d.id,...d.data()}));
+  renderMunicipios();
+}
+
+let _filtroMun='', _filtroMunEst='';
+function renderMunicipios() {
+  let lista = _municipios;
+  if (_filtroMun) lista = lista.filter(m => m.nome.toLowerCase().includes(_filtroMun.toLowerCase()));
+  if (_filtroMunEst) lista = lista.filter(m => m.estado === _filtroMunEst);
+  const tb = document.getElementById('tabela-municipios');
+  if (!lista.length) { tb.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">📍</div><h3>Nenhum município cadastrado</h3></div></td></tr>`; return; }
+  tb.innerHTML = lista.map(m => `<tr>
+    <td><strong>${m.nome}</strong></td>
+    <td><span class="badge badge-blue">${m.estado}</span></td>
+    <td><span class="badge ${m.status==='ativo'?'badge-green':'badge-gray'}">${m.status||'ativo'}</span></td>
+    <td><button class="btn btn-sm btn-outline" onclick="editarMunicipio('${m.id}')">✏️</button>
+        <button class="btn btn-sm btn-red" style="margin-left:4px" onclick="excluirMunicipio('${m.id}')">🗑️</button></td>
+  </tr>`).join('');
+}
+function filtrarMun(v) { _filtroMun=v; renderMunicipios(); }
+function filtrarMunEst(v) { _filtroMunEst=v; renderMunicipios(); }
+
+function abrirModalMunicipio(id='') {
+  document.getElementById('modal-mun-title').textContent = id ? 'Editar Município' : 'Novo Município';
+  document.getElementById('mun-id').value = id;
+  if (id) {
+    const m = _municipios.find(x => x.id === id);
+    if (m) { document.getElementById('mun-nome').value=m.nome; document.getElementById('mun-estado').value=m.estado; document.getElementById('mun-status').value=m.status||'ativo'; }
+  }
+  abrirModal('modal-municipio');
+}
+function editarMunicipio(id) { abrirModalMunicipio(id); }
+
+async function salvarMunicipio() {
+  const id = document.getElementById('mun-id').value;
+  const nome = document.getElementById('mun-nome').value.trim();
+  const estado = document.getElementById('mun-estado').value;
+  if (!nome || !estado) { alert('Nome e estado obrigatórios.'); return; }
+  const data = { nome, estado, status: document.getElementById('mun-status').value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  try {
+    if (id) await col('municipios').doc(id).update(data);
+    else await col('municipios').add({...data, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    fecharModal('modal-municipio');
+    await carregarMunicipios();
+    preencherSelects();
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+async function excluirMunicipio(id) {
+  if (!confirm('Excluir este município?')) return;
+  await col('municipios').doc(id).delete();
+  await carregarMunicipios();
+}
+
+// ─── BENEFICIÁRIOS ─────────────────────────────────────────────
+async function carregarBenef() {
+  const snap = await col('beneficiarios').orderBy('nome').get();
+  _benef = snap.docs.map(d => ({id:d.id,...d.data()}));
+  renderBenef();
+}
+
+let _filtroBenef='', _filtroBenefProg='', _filtroBenefMun='';
+function renderBenef() {
+  let lista = _benef;
+  if (_filtroBenef) lista = lista.filter(b => b.nome.toLowerCase().includes(_filtroBenef.toLowerCase()) || (b.cpf||'').includes(_filtroBenef));
+  if (_filtroBenefProg) lista = lista.filter(b => b.programaId === _filtroBenefProg);
+  if (_filtroBenefMun) lista = lista.filter(b => b.municipioId === _filtroBenefMun);
+  const tb = document.getElementById('tabela-benef');
+  if (!lista.length) { tb.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">👨‍👩‍👧‍👦</div><h3>Nenhum beneficiário encontrado</h3></div></td></tr>`; return; }
+  const STATUS_B = {selecionado:'badge-gray',cadastrado:'badge-blue',capacitado:'badge-gold',em_construcao:'badge-gold',concluido:'badge-green'};
+  const LABEL_B = {selecionado:'Selecionado',cadastrado:'Cadastrado',capacitado:'Capacitado',em_construcao:'Em Construção',concluido:'Concluído'};
+
+  // Pré-calcula % por programa
+  const pctMap = {};
+  _programas.forEach(p => {
+    const csProg = _contratos.filter(c => c.programaId === p.id);
+    const metaTotal = csProg.reduce((a,c) => a+(c.metaFisica||0), 0);
+    const orcTotal  = csProg.reduce((a,c) => a+(c.valor||0), 0);
+    const csIds     = csProg.map(c => c.id);
+    const countBenef = _benef.filter(b => b.programaId === p.id).length;
+    const gastosTotal = _execucoes.filter(e => csIds.includes(e.contratoId)).reduce((a,e) => a+(e.valor||0), 0);
+    pctMap[p.id] = {
+      fisica:     metaTotal ? Math.round((countBenef/metaTotal)*100)  : null,
+      financeira: orcTotal  ? Math.round((gastosTotal/orcTotal)*100)  : null
+    };
+  });
+
+  function pctPill(val, cor) {
+    if (val === null) return '<span style="color:#aaa;font-size:12px">—</span>';
+    const bg = val >= 100 ? '#e8f5e9' : val >= 50 ? '#fff8e1' : '#fef2f2';
+    const tx = val >= 100 ? 'var(--green)' : val >= 50 ? '#b45309' : 'var(--red)';
+    return `<span style="background:${bg};color:${tx};padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700">${val}%</span>`;
+  }
+
+  tb.innerHTML = lista.map(b => {
+    const prog = _programas.find(p => p.id === b.programaId);
+    const mun  = _municipios.find(m => m.id === b.municipioId);
+    const pct  = prog ? (pctMap[prog.id] || {}) : {};
+    return `<tr>
+      <td><strong>${b.nome}</strong>${b.cpf?`<br><small style="color:var(--text3)">${b.cpf}</small>`:''}</td>
+      <td>${mun?`${mun.nome}/${mun.estado}`:b.municipioNome||'—'}</td>
+      <td>${prog?`<span class="badge badge-green" style="font-size:9px">${prog.sigla||prog.nome}</span>`:'—'}</td>
+      <td style="text-align:center">${pctPill(pct.fisica??null, 'green')}</td>
+      <td style="text-align:center">${pctPill(pct.financeira??null, 'blue')}</td>
+      <td><span class="badge ${STATUS_B[b.status]||'badge-gray'}">${LABEL_B[b.status]||b.status||'—'}</span></td>
+      <td><button class="btn btn-sm btn-outline" onclick="editarBenef('${b.id}')">✏️</button>
+          <button class="btn btn-sm btn-red" style="margin-left:4px" onclick="excluirBenef('${b.id}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+function filtrarBenef(v) { _filtroBenef=v; renderBenef(); }
+function filtrarBenefProg(v) { _filtroBenefProg=v; renderBenef(); }
+function filtrarBenefMun(v) { _filtroBenefMun=v; renderBenef(); }
+
+function abrirModalBenef(id='') {
+  document.getElementById('modal-benef-title').textContent = id ? 'Editar Beneficiário' : 'Novo Beneficiário';
+  document.getElementById('benef-id').value = id;
+  preencherSelectProgramas('benef-programa');
+  document.getElementById('benef-data').value = today();
+  if (id) {
+    const b = _benef.find(x => x.id === id);
+    if (b) {
+      document.getElementById('benef-nome').value=b.nome||'';
+      document.getElementById('benef-cpf').value=b.cpf||'';
+      document.getElementById('benef-tel').value=b.telefone||'';
+      document.getElementById('benef-nasc').value=b.nascimento||'';
+      document.getElementById('benef-estado').value=b.estado||'';
+      carregarMunicipiosPorEstado(b.estado||'','benef-municipio',b.municipioId);
+      document.getElementById('benef-comunidade').value=b.comunidade||'';
+      document.getElementById('benef-programa').value=b.programaId||'';
+      carregarContratosPorPrograma(b.programaId||'','benef-contrato',b.contratoId);
+      document.getElementById('benef-status').value=b.status||'selecionado';
+      document.getElementById('benef-data').value=b.dataCadastro||'';
+      document.getElementById('benef-obs').value=b.obs||'';
+    }
+  }
+  abrirModal('modal-benef');
+}
+function editarBenef(id) { abrirModalBenef(id); }
+
+async function salvarBenef() {
+  const id = document.getElementById('benef-id').value;
+  const nome = document.getElementById('benef-nome').value.trim();
+  const municipioId = document.getElementById('benef-municipio').value;
+  const programaId = document.getElementById('benef-programa').value;
+  if (!nome) { alert('Nome obrigatório.'); return; }
+  const mun = _municipios.find(m => m.id === municipioId);
+  const prog = _programas.find(p => p.id === programaId);
+  const data = {
+    nome, cpf: document.getElementById('benef-cpf').value.trim(),
+    telefone: document.getElementById('benef-tel').value.trim(),
+    nascimento: document.getElementById('benef-nasc').value,
+    estado: document.getElementById('benef-estado').value,
+    municipioId, municipioNome: mun?mun.nome:'',
+    comunidade: document.getElementById('benef-comunidade').value.trim(),
+    programaId, programaNome: prog?prog.nome:'',
+    contratoId: document.getElementById('benef-contrato').value,
+    status: document.getElementById('benef-status').value,
+    dataCadastro: document.getElementById('benef-data').value,
+    obs: document.getElementById('benef-obs').value.trim(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    if (id) await col('beneficiarios').doc(id).update(data);
+    else await col('beneficiarios').add({...data, createdBy: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    fecharModal('modal-benef');
+    await carregarBenef();
+    atualizarDashboard();
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+async function excluirBenef(id) {
+  if (!confirm('Excluir este beneficiário?')) return;
+  await col('beneficiarios').doc(id).delete();
+  await carregarBenef();
+  atualizarDashboard();
+}
+
+// ─── EXECUÇÃO ──────────────────────────────────────────────────
+async function carregarExecucoes() {
+  const snap = await col('execucoes').orderBy('data','desc').get();
+  _execucoes = snap.docs.map(d => ({id:d.id,...d.data()}));
+  renderExecucao();
+  renderBenef();
+}
+
+function renderExecucao(contratoId='') {
+  let lista = _execucoes;
+  if (contratoId) lista = lista.filter(e => e.contratoId === contratoId);
+  const tb = document.getElementById('tabela-execucao');
+  if (!lista.length) { tb.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">⚙️</div><h3>${contratoId?'Nenhum registro para este contrato':'Selecione um contrato acima'}</h3></div></td></tr>`; return; }
+  tb.innerHTML = lista.map(e => {
+    const mun = _municipios.find(m => m.id === e.municipioId);
+    const tec = _tecnicos.find(t => t.id === e.tecnicoId);
+    return `<tr>
+      <td>${e.data||'—'}</td>
+      <td>${e.atividadeNome||'—'}</td>
+      <td>${mun?mun.nome:e.municipioNome||'—'}</td>
+      <td style="text-align:center"><strong>${e.qtd||0}</strong></td>
+      <td><strong style="color:var(--green)">${fmt(e.valor)}</strong></td>
+      <td>${tec?tec.nome:'—'}</td>
+      <td style="font-size:11px;color:var(--text3);max-width:120px">${e.obs||'—'}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-sm btn-outline" onclick="editarExecucao('${e.id}')" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-red" onclick="excluirExecucao('${e.id}')" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Resumo financeiro do contrato selecionado
+  const resumo = document.getElementById('execucao-resumo');
+  const painelFin = document.getElementById('painel-financeiro');
+  if (contratoId) {
+    const contrato = _contratos.find(c => c.id === contratoId);
+    const totalGastos = lista.reduce((a,e)=>a+(e.valor||0),0);
+    const totalFisico = lista.reduce((a,e)=>a+(e.qtd||0),0);
+    const orcamento = contrato?.valor || 0;
+    const repassesDoContrato = _repasses.filter(r => r.contratoId === contratoId);
+    const repasseRecebido = repassesDoContrato.reduce((a,r) => a+(r.valor||0), 0);
+    const numParcelas = repassesDoContrato.length;
+    const aReceber = orcamento - repasseRecebido;
+    const saldo = repasseRecebido - totalGastos;
+    const pct = orcamento ? Math.round((totalGastos/orcamento)*100) : 0;
+
+    resumo.innerHTML = `
+      <div class="kpi" style="border-left-color:var(--green)">
+        <div class="kpi-val">${fmt(orcamento)}</div>
+        <div class="kpi-label">Orçamento Total</div>
+      </div>
+      <div class="kpi" style="border-left-color:var(--blue)">
+        <div class="kpi-val">${fmt(repasseRecebido)}</div>
+        <div class="kpi-label">Repasse Recebido</div>
+        <div class="kpi-sub" style="cursor:pointer;color:var(--green)" onclick="abrirModalRepasse('${contratoId}')">➕ Parcela ${numParcelas>0?'('+numParcelas+'x)':''}</div>
+      </div>
+      <div class="kpi" style="border-left-color:#8b5cf6">
+        <div class="kpi-val" style="color:#8b5cf6">${fmt(aReceber)}</div>
+        <div class="kpi-label">A Receber</div>
+        <div class="kpi-sub" style="color:#8b5cf6">${aReceber > 0 ? 'Pendente do financiador' : 'Quitado'}</div>
+      </div>
+      <div class="kpi" style="border-left-color:var(--gold)">
+        <div class="kpi-val">${fmt(totalGastos)}</div>
+        <div class="kpi-label">Gastos</div>
+        <div class="kpi-sub">${pct}% do orçamento</div>
+      </div>
+      <div class="kpi" style="border-left-color:${saldo>=0?'var(--green)':'var(--red)'}">
+        <div class="kpi-val" style="color:${saldo>=0?'var(--green)':'var(--red)'}">${fmt(saldo)}</div>
+        <div class="kpi-label">Saldo Disponível</div>
+        <div class="kpi-sub">${saldo>=0?'Repasse − Gastos':'Negativo'}</div>
+      </div>
+    `;
+
+    // Painel por atividade
+    if (lista.length) {
+      const porAtv = {};
+      lista.forEach(e => {
+        const k = e.atividadeNome || '(sem atividade)';
+        if (!porAtv[k]) porAtv[k] = { gastos: 0, qtd: 0 };
+        porAtv[k].gastos += (e.valor||0);
+        porAtv[k].qtd += (e.qtd||0);
+      });
+      painelFin.innerHTML = `
+        <div class="card">
+          <div class="card-title">Execução por <span>Atividade</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Atividade / Município</th>
+                <th style="text-align:right">Qtd Física</th>
+                <th style="text-align:right">Gastos (R$)</th>
+                <th style="text-align:right">% do Orçamento</th>
+              </tr></thead>
+              <tbody>
+                ${Object.entries(porAtv).map(([nome,v])=>{
+                  const pctAtv = orcamento ? ((v.gastos/orcamento)*100).toFixed(1) : '—';
+                  return `<tr>
+                    <td style="font-weight:600">${nome}</td>
+                    <td style="text-align:right">${v.qtd}</td>
+                    <td style="text-align:right">${fmt(v.gastos)}</td>
+                    <td style="text-align:right">
+                      <span style="background:#e8f5e9;color:var(--green);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">${pctAtv}%</span>
+                    </td>
+                  </tr>`;
+                }).join('')}
+                <tr style="background:#f8fafc;font-weight:800;border-top:2px solid #e2e8f0">
+                  <td>TOTAL</td>
+                  <td style="text-align:right">${totalFisico}</td>
+                  <td style="text-align:right">${fmt(totalGastos)}</td>
+                  <td style="text-align:right">
+                    <span style="background:#e8f5e9;color:var(--green);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">${pct}%</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    } else { painelFin.innerHTML = ''; }
+  } else {
+    resumo.innerHTML = '';
+    painelFin.innerHTML = '';
+  }
+}
+
+function carregarExecucaoPorContrato(id) {
+  _filtroContratoExec = id;
+  renderExecucao(id);
+}
+
+// =================== REPASSE POR PARCELAS ===================
+async function carregarRepasses() {
+  const snap = await col('repasses').orderBy('data','desc').get();
+  _repasses = snap.docs.map(d => ({id:d.id,...d.data()}));
+}
+
+function abrirModalRepasse(contratoId) {
+  const contrato = _contratos.find(c => c.id === contratoId);
+  document.getElementById('repasse-contrato-id').value = contratoId;
+  document.getElementById('repasse-contrato-nome').textContent = contrato?.numero || '';
+  document.getElementById('repasse-data').value = today();
+  document.getElementById('repasse-valor').value = '';
+  document.getElementById('repasse-desc').value = '';
+  renderListaRepasses(contratoId);
+  abrirModal('modal-repasse');
+}
+
+function renderListaRepasses(contratoId) {
+  const lista = _repasses.filter(r => r.contratoId === contratoId);
+  const total = lista.reduce((a,r)=>a+(r.valor||0),0);
+  const tb = document.getElementById('tabela-repasses');
+  if (!lista.length) {
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:14px">Nenhuma parcela registrada</td></tr>';
+  } else {
+    tb.innerHTML = lista.map(r => `<tr>
+      <td>${r.data||'—'}</td>
+      <td>${r.desc||'—'}</td>
+      <td style="text-align:right;font-weight:700;color:var(--green)">${fmt(r.valor||0)}</td>
+      <td><button class="btn btn-sm btn-red" onclick="excluirRepasse('${r.id}','${contratoId}')">🗑️</button></td>
+    </tr>`).join('') +
+    `<tr style="background:#f0faf4;font-weight:800;border-top:2px solid #c8e6c9">
+      <td colspan="2">TOTAL RECEBIDO</td>
+      <td style="text-align:right;color:var(--green)">${fmt(total)}</td>
+      <td></td>
+    </tr>`;
+  }
+}
+
+async function salvarRepasse() {
+  const contratoId = document.getElementById('repasse-contrato-id').value;
+  const valor = parseFloat(document.getElementById('repasse-valor').value.replace(',','.')) || 0;
+  const data2 = document.getElementById('repasse-data').value;
+  const desc = document.getElementById('repasse-desc').value.trim();
+  if (!valor || !data2) { alert('Informe data e valor da parcela.'); return; }
+  try {
+    const doc = await col('repasses').add({ contratoId, valor, data: data2, desc, criadoEm: firebase.firestore.FieldValue.serverTimestamp() });
+    _repasses.unshift({ id: doc.id, contratoId, valor, data: data2, desc });
+    document.getElementById('repasse-valor').value = '';
+    document.getElementById('repasse-desc').value = '';
+    renderListaRepasses(contratoId);
+    renderExecucao(_filtroContratoExec);
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+async function excluirRepasse(id, contratoId) {
+  if (!confirm('Excluir esta parcela?')) return;
+  try {
+    await col('repasses').doc(id).delete();
+    _repasses = _repasses.filter(r => r.id !== id);
+    renderListaRepasses(contratoId);
+    renderExecucao(_filtroContratoExec);
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+// =================== GERENCIAR ATIVIDADES ===================
+function abrirModalAtividades() {
+  preencherSelectContratos('atv-contrato');
+  // Pega contrato do modal de execução ou do filtro da página
+  const contratoExec = document.getElementById('exec-contrato')?.value || _filtroContratoExec;
+  if (contratoExec) {
+    document.getElementById('atv-contrato').value = contratoExec;
+    listarAtividades(contratoExec);
+  } else {
+    document.getElementById('tabela-atividades').innerHTML = '<tr><td colspan="6" class="loading">Selecione um contrato</td></tr>';
+  }
+  fecharFormAtividade();
+  abrirModal('modal-atividades');
+}
+
+function fecharAtividadesVoltarExec() {
+  fecharModal('modal-atividades');
+  // Recarrega atividades no dropdown do modal de execução
+  const contratoId = document.getElementById('exec-contrato')?.value;
+  if (contratoId) carregarAtividadesPorContrato(contratoId);
+}
+
+async function listarAtividades(contratoId) {
+  const tbody = document.getElementById('tabela-atividades');
+  if (!contratoId) { tbody.innerHTML = '<tr><td colspan="2" class="loading">Selecione um contrato</td></tr>'; return; }
+  tbody.innerHTML = '<tr><td colspan="2" class="loading"><span class="spin">⏳</span></td></tr>';
+  try {
+    const snap = await col('atividades').where('contratoId','==',contratoId).get();
+    const ativs = snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome));
+    if (!ativs.length) {
+      tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#aaa;padding:20px">Nenhuma atividade cadastrada. Clique em "+ Nova Atividade".</td></tr>';
+      return;
+    }
+    tbody.innerHTML = ativs.map(a => `
+      <tr>
+        <td style="font-weight:600">${a.nome}</td>
+        <td style="width:80px">
+          <button class="btn btn-sm btn-outline" onclick="editarAtividade('${a.id}','${a.nome.replace(/'/g,"\\'")}')">✏️</button>
+          <button class="btn btn-sm btn-red" onclick="excluirAtividade('${a.id}','${contratoId}')">🗑️</button>
+        </td>
+      </tr>`).join('');
+  } catch(e) { tbody.innerHTML = '<tr><td colspan="2">Erro ao carregar</td></tr>'; }
+}
+
+function abrirFormAtividade() {
+  document.getElementById('atv-edit-id').value = '';
+  document.getElementById('atv-nome').value = '';
+  document.getElementById('form-nova-atv').style.display = 'block';
+  document.getElementById('atv-nome').focus();
+}
+
+function fecharFormAtividade() {
+  document.getElementById('form-nova-atv').style.display = 'none';
+}
+
+function editarAtividade(id, nome) {
+  document.getElementById('atv-edit-id').value = id;
+  document.getElementById('atv-nome').value = nome;
+  document.getElementById('form-nova-atv').style.display = 'block';
+  document.getElementById('atv-nome').focus();
+}
+
+async function salvarAtividade() {
+  const contratoId = document.getElementById('atv-contrato').value;
+  const nome = document.getElementById('atv-nome').value.trim();
+  if (!contratoId) { alert('Selecione um contrato.'); return; }
+  if (!nome) { alert('Nome da atividade obrigatório.'); return; }
+  try {
+    const editId = document.getElementById('atv-edit-id').value;
+    if (editId) {
+      await col('atividades').doc(editId).update({ nome });
+    } else {
+      await col('atividades').add({ contratoId, nome });
+    }
+    fecharFormAtividade();
+    listarAtividades(contratoId);
+    if (_filtroContratoExec === contratoId) carregarAtividadesPorContrato(contratoId);
+  } catch(e) { alert('Erro ao salvar: ' + e.message); }
+}
+
+async function excluirAtividade(id, contratoId) {
+  if (!confirm('Excluir esta atividade?')) return;
+  try {
+    await col('atividades').doc(id).delete();
+    listarAtividades(contratoId);
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+function abrirModalExecucao() {
+  preencherSelectContratos('exec-contrato');
+  preencherSelectMunicipios('exec-municipio');
+  preencherSelectTecnicos('exec-tecnico');
+  document.getElementById('exec-data').value = today();
+  if (_filtroContratoExec) {
+    document.getElementById('exec-contrato').value = _filtroContratoExec;
+    carregarAtividadesPorContrato(_filtroContratoExec);
+  }
+  abrirModal('modal-execucao');
+}
+
+function carregarAtividadesPorContrato(contratoId) {
+  // campo de texto livre — não precisa carregar do Firestore
+}
+
+async function salvarExecucao() {
+  const editId = document.getElementById('exec-id').value;
+  const contratoId = document.getElementById('exec-contrato').value;
+  const atividadeNome = document.getElementById('exec-atividade').value.trim();
+  const municipioId = document.getElementById('exec-municipio').value;
+  const data2 = document.getElementById('exec-data').value;
+  if (!contratoId || !data2) { alert('Contrato e data obrigatórios.'); return; }
+  const mun = _municipios.find(m => m.id === municipioId);
+  const data = {
+    contratoId, atividadeNome,
+    municipioId, municipioNome: mun?mun.nome:'',
+    data: data2,
+    qtd: parseFloat(document.getElementById('exec-qtd').value)||0,
+    valor: parseFloat(document.getElementById('exec-valor').value)||0,
+    tecnicoId: document.getElementById('exec-tecnico').value,
+    status: document.getElementById('exec-status').value,
+    obs: document.getElementById('exec-obs').value.trim(),
+    updatedBy: currentUser.uid,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    if (editId) {
+      await col('execucoes').doc(editId).update(data);
+    } else {
+      data.createdBy = currentUser.uid;
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await col('execucoes').add(data);
+    }
+    document.getElementById('exec-id').value = '';
+    document.getElementById('modal-exec-title').textContent = 'Registrar Execução';
+    fecharModal('modal-execucao');
+    await carregarExecucoes();
+    renderExecucao(_filtroContratoExec);
+    atualizarDashboard();
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+async function editarExecucao(id) {
+  const e = _execucoes.find(x => x.id === id);
+  if (!e) return;
+  preencherSelectContratos('exec-contrato');
+  preencherSelectMunicipios('exec-municipio');
+  preencherSelectTecnicos('exec-tecnico');
+  document.getElementById('exec-id').value = id;
+  document.getElementById('exec-contrato').value = e.contratoId || '';
+  document.getElementById('exec-atividade').value = e.atividadeNome || '';
+  document.getElementById('exec-municipio').value = e.municipioId || '';
+  document.getElementById('exec-data').value = e.data || '';
+  document.getElementById('exec-qtd').value = e.qtd || '';
+  document.getElementById('exec-valor').value = e.valor || '';
+  document.getElementById('exec-tecnico').value = e.tecnicoId || '';
+  document.getElementById('exec-status').value = e.status || 'registrado';
+  document.getElementById('exec-obs').value = e.obs || '';
+  document.getElementById('modal-exec-title').textContent = 'Editar Execução';
+  abrirModal('modal-execucao');
+}
+
+async function excluirExecucao(id) {
+  if (!confirm('Excluir este registro?')) return;
+  await col('execucoes').doc(id).delete();
+  await carregarExecucoes();
+  renderExecucao(_filtroContratoExec);
+}
+
+// ─── TÉCNICOS ──────────────────────────────────────────────────
+async function carregarTecnicos() {
+  const snap = await col('tecnicos').orderBy('nome').get();
+  _tecnicos = snap.docs.map(d => ({id:d.id,...d.data()}));
+  renderTecnicos();
+}
+
+let _filtroTec = '';
+function renderTecnicos() {
+  let lista = _filtroTec ? _tecnicos.filter(t => t.nome.toLowerCase().includes(_filtroTec.toLowerCase())) : _tecnicos;
+  const tb = document.getElementById('tabela-tecnicos');
+  if (!lista.length) { tb.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👷</div><h3>Nenhum técnico cadastrado</h3></div></td></tr>`; return; }
+  tb.innerHTML = lista.map(t => `<tr>
+    <td><strong>${t.nome}</strong></td>
+    <td>${t.cargo||'—'}</td>
+    <td>${t.email||'—'}</td>
+    <td><span class="badge ${t.status==='ativo'?'badge-green':'badge-gray'}">${t.status||'ativo'}</span></td>
+    <td><button class="btn btn-sm btn-outline" onclick="editarTecnico('${t.id}')">✏️</button>
+        <button class="btn btn-sm btn-red" style="margin-left:4px" onclick="excluirTecnico('${t.id}')">🗑️</button></td>
+  </tr>`).join('');
+}
+function filtrarTecnicos(v) { _filtroTec=v; renderTecnicos(); }
+
+function abrirModalTecnico(id='') {
+  document.getElementById('modal-tec-title').textContent = id ? 'Editar Técnico' : 'Novo Técnico';
+  document.getElementById('tec-id').value = id;
+  if (id) {
+    const t = _tecnicos.find(x => x.id === id);
+    if (t) {
+      document.getElementById('tec-nome').value=t.nome||'';
+      document.getElementById('tec-cargo').value=t.cargo||'';
+      document.getElementById('tec-email').value=t.email||'';
+      document.getElementById('tec-tel').value=t.telefone||'';
+      document.getElementById('tec-cpf').value=t.cpf||'';
+      document.getElementById('tec-status').value=t.status||'ativo';
+    }
+  }
+  abrirModal('modal-tecnico');
+}
+function editarTecnico(id) { abrirModalTecnico(id); }
+
+async function salvarTecnico() {
+  const id = document.getElementById('tec-id').value;
+  const nome = document.getElementById('tec-nome').value.trim();
+  if (!nome) { alert('Nome obrigatório.'); return; }
+  const data = { nome, cargo: document.getElementById('tec-cargo').value.trim(), email: document.getElementById('tec-email').value.trim(), telefone: document.getElementById('tec-tel').value.trim(), cpf: document.getElementById('tec-cpf').value.trim(), status: document.getElementById('tec-status').value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  try {
+    if (id) await col('tecnicos').doc(id).update(data);
+    else await col('tecnicos').add({...data, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    fecharModal('modal-tecnico');
+    await carregarTecnicos();
+    preencherSelects();
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+async function excluirTecnico(id) {
+  if (!confirm('Excluir este técnico?')) return;
+  await col('tecnicos').doc(id).delete();
+  await carregarTecnicos();
+}
+
+// ─── USUÁRIOS ──────────────────────────────────────────────────
+async function carregarUsuarios() {
+  const snap = await col('usuarios').orderBy('nome').get();
+  _usuarios = snap.docs.map(d => ({id:d.id,...d.data()}));
+  renderUsuarios();
+}
+
+let _filtroUsr = '';
+function renderUsuarios() {
+  let lista = _filtroUsr ? _usuarios.filter(u => u.nome?.toLowerCase().includes(_filtroUsr.toLowerCase()) || u.email?.includes(_filtroUsr)) : _usuarios;
+  const tb = document.getElementById('tabela-usuarios');
+  if (!lista.length) { tb.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👥</div><h3>Nenhum usuário cadastrado</h3></div></td></tr>`; return; }
+  tb.innerHTML = lista.map(u => `<tr>
+    <td><strong>${u.nome||'—'}</strong></td>
+    <td>${u.email||'—'}</td>
+    <td><span class="badge badge-blue">${PERFIS[u.perfil]||u.perfil||'—'}</span></td>
+    <td><span class="badge ${u.ativo!==false?'badge-green':'badge-gray'}">${u.ativo!==false?'Ativo':'Inativo'}</span></td>
+    <td><button class="btn btn-sm btn-outline" onclick="editarUsuario('${u.id}')">✏️</button></td>
+  </tr>`).join('');
+}
+function filtrarUsuarios(v) { _filtroUsr=v; renderUsuarios(); }
+
+function abrirModalUsuario() { abrirModal('modal-usuario'); }
+function editarUsuario(id) {
+  const u = _usuarios.find(x => x.id === id);
+  if (!u) return;
+  document.getElementById('usr-id').value = id;
+  document.getElementById('usr-nome').value = u.nome||'';
+  document.getElementById('usr-email').value = u.email||'';
+  document.getElementById('usr-perfil').value = u.perfil||'tecnico';
+  document.getElementById('modal-usr-title').textContent = 'Editar Usuário';
+  abrirModal('modal-usuario');
+}
+
+async function salvarUsuario() {
+  const id = document.getElementById('usr-id').value;
+  const nome = document.getElementById('usr-nome').value.trim();
+  const email = document.getElementById('usr-email').value.trim();
+  const senha = document.getElementById('usr-senha').value;
+  const perfil = document.getElementById('usr-perfil').value;
+  if (!nome || !email) { alert('Nome e e-mail obrigatórios.'); return; }
+  try {
+    if (id) {
+      await col('usuarios').doc(id).update({ nome, perfil, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    } else {
+      if (!senha || senha.length < 6) { alert('Senha mínimo 6 caracteres.'); return; }
+      const cred = await auth.createUserWithEmailAndPassword(email, senha);
+      await col('usuarios').doc(cred.user.uid).set({ nome, email, perfil, ativo: true, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    fecharModal('modal-usuario');
+    await carregarUsuarios();
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+// ─── DASHBOARD ─────────────────────────────────────────────────
+function atualizarDashboard() {
+  const totalBenef = _benef.length;
+  const totalConc = _benef.filter(b => b.status === 'concluido').length;
+  const totalProg = _programas.filter(p => p.status !== 'inativo').length;
+  const totalMun = _municipios.filter(m => m.status !== 'inativo').length;
+  const totalExec = _execucoes.reduce((a,e) => a+(e.valor||0), 0);
+
+  document.getElementById('dash-kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-val">${totalBenef}</div><div class="kpi-label">Beneficiários</div><div class="kpi-sub">${totalConc} concluídos</div></div>
+    <div class="kpi" style="border-left-color:var(--gold)"><div class="kpi-val">${totalProg}</div><div class="kpi-label">Programas Ativos</div></div>
+    <div class="kpi" style="border-left-color:#3b82f6"><div class="kpi-val">${totalMun}</div><div class="kpi-label">Municípios</div></div>
+    <div class="kpi" style="border-left-color:#8b5cf6"><div class="kpi-val">${fmt(totalExec)}</div><div class="kpi-label">Total Registrado</div></div>
+  `;
+
+  // Programas
+  const dp = document.getElementById('dash-programas');
+  if (!_programas.length) { dp.innerHTML = '<div class="empty-state" style="padding:20px"><p>Nenhum programa cadastrado.</p></div>'; }
+  else dp.innerHTML = _programas.map(p => {
+    const benef = _benef.filter(b => b.programaId === p.id).length;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-weight:700;font-size:13px">${p.nome}</div><div style="font-size:11px;color:var(--text3)">${p.sigla||''} • ${p.financiador||''}</div></div>
+      <span class="badge ${p.status==='ativo'?'badge-green':'badge-gray'}">${benef} benef.</span>
+    </div>`;
+  }).join('');
+
+  // Últimos beneficiários
+  const db2 = document.getElementById('dash-benef');
+  const ultimos = [..._benef].slice(-5).reverse();
+  if (!ultimos.length) { db2.innerHTML = '<div class="empty-state" style="padding:20px"><p>Nenhum beneficiário cadastrado.</p></div>'; }
+  else db2.innerHTML = ultimos.map(b => {
+    const mun = _municipios.find(m => m.id === b.municipioId);
+    return `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <strong>${b.nome}</strong> <span style="color:var(--text3);font-size:11px">• ${mun?mun.nome+'/'+mun.estado:b.municipioNome||'—'}</span>
+    </div>`;
+  }).join('');
+
+  // Execução por município
+  const dm = document.getElementById('dash-municipios');
+  const munExec = {};
+  _execucoes.forEach(e => {
+    const k = e.municipioNome || '(não informado)';
+    if (!munExec[k]) munExec[k] = { valor: 0, qtd: 0 };
+    munExec[k].valor += (e.valor || 0);
+    munExec[k].qtd += (e.qtd || 0);
+  });
+  const sortedExec = Object.entries(munExec).sort((a,b) => b[1].valor - a[1].valor).slice(0, 8);
+  if (!sortedExec.length) { dm.innerHTML = '<div class="empty-state" style="padding:20px"><p>Nenhuma execução registrada ainda.</p></div>'; }
+  else {
+    const maxVal = sortedExec[0][1].valor;
+    dm.innerHTML = sortedExec.map(([mun, v]) => `
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:12px;font-weight:600">${mun}</span>
+          <span style="font-size:12px;color:var(--green);font-weight:700">${fmt(v.valor)}</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:${maxVal?Math.round((v.valor/maxVal)*100):0}%"></div></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${v.qtd} unid. físicas</div>
+      </div>`).join('');
+  }
+}
+
+// ─── RELATÓRIOS ────────────────────────────────────────────────
+function relBenefPorMunicipio() {
+  const data = new Date().toLocaleDateString('pt-BR');
+  const grupos = {};
+  _benef.forEach(b => {
+    const mun = _municipios.find(m => m.id === b.municipioId);
+    const key = mun ? mun.nome+'/'+mun.estado : 'Não informado';
+    if (!grupos[key]) grupos[key] = [];
+    grupos[key].push(b);
+  });
+  const html = Object.entries(grupos).sort().map(([mun,lista]) => `
+    <div style="margin-bottom:20px;page-break-inside:avoid">
+      <div style="background:#1a6b3a;color:#fff;padding:8px 12px;border-radius:4px;font-weight:800;font-size:12px;margin-bottom:8px">📍 ${mun} — ${lista.length} beneficiário(s)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="background:#e8f5ed"><th style="padding:6px;text-align:left">Nome</th><th>CPF</th><th>Comunidade</th><th>Programa</th><th>Status</th><th>Cadastro</th></tr></thead>
+        <tbody>${lista.map(b=>`<tr style="border-bottom:1px solid #eee"><td style="padding:5px">${b.nome}</td><td style="padding:5px">${b.cpf||'—'}</td><td style="padding:5px">${b.comunidade||'—'}</td><td style="padding:5px">${b.programaNome||'—'}</td><td style="padding:5px">${b.status||'—'}</td><td style="padding:5px">${b.dataCadastro||'—'}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`).join('');
+  abrirPDF(`Beneficiários por Município`, html, data, _benef.length + ' beneficiários');
+}
+
+function relBenefCompleto() {
+  const data = new Date().toLocaleDateString('pt-BR');
+  const html = `<table style="width:100%;border-collapse:collapse;font-size:11px">
+    <thead><tr style="background:#e8f5ed"><th style="padding:6px;text-align:left">Nome</th><th>CPF</th><th>Município</th><th>Comunidade</th><th>Programa</th><th>Contato</th><th>Status</th><th>Cadastro</th></tr></thead>
+    <tbody>${_benef.map(b=>{const mun=_municipios.find(m=>m.id===b.municipioId);return`<tr style="border-bottom:1px solid #eee"><td style="padding:5px">${b.nome}</td><td style="padding:5px">${b.cpf||'—'}</td><td style="padding:5px">${mun?mun.nome+'/'+mun.estado:b.municipioNome||'—'}</td><td style="padding:5px">${b.comunidade||'—'}</td><td style="padding:5px">${b.programaNome||'—'}</td><td style="padding:5px">${b.telefone||'—'}</td><td style="padding:5px">${b.status||'—'}</td><td style="padding:5px">${b.dataCadastro||'—'}</td></tr>`;}).join('')}</tbody>
+  </table>`;
+  abrirPDF('Lista Completa de Beneficiários', html, data, _benef.length + ' registros');
+}
+
+function relExecucaoFinanceira() {
+  const data = new Date().toLocaleDateString('pt-BR');
+  const html = _contratos.map(c => {
+    const prog = _programas.find(p => p.id === c.programaId);
+    const execs = _execucoes.filter(e => e.contratoId === c.id);
+    const totalReg = execs.reduce((a,e)=>a+(e.valor||0),0);
+    const totalFis = execs.reduce((a,e)=>a+(e.qtd||0),0);
+    const pct = c.valor ? Math.round((totalReg/c.valor)*100) : 0;
+    return `<div style="margin-bottom:24px;page-break-inside:avoid;border:1px solid #ddd;border-radius:6px;overflow:hidden">
+      <div style="background:#1a6b3a;color:#fff;padding:10px 14px;display:flex;justify-content:space-between">
+        <span style="font-weight:800">${c.numero}</span>
+        <span>${prog?prog.nome:''}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;background:#fff">
+        <div style="padding:10px;border-right:1px solid #eee"><div style="font-size:9px;color:#888">VALOR CONTRATADO</div><div style="font-weight:800;font-size:14px;color:#1a6b3a">${fmt(c.valor)}</div></div>
+        <div style="padding:10px;border-right:1px solid #eee"><div style="font-size:9px;color:#888">TOTAL REGISTRADO</div><div style="font-weight:800;font-size:14px">${fmt(totalReg)}</div></div>
+        <div style="padding:10px;border-right:1px solid #eee"><div style="font-size:9px;color:#888">% EXECUTADO</div><div style="font-weight:800;font-size:14px">${pct}%</div></div>
+        <div style="padding:10px"><div style="font-size:9px;color:#888">TOTAL FÍSICO</div><div style="font-weight:800;font-size:14px">${totalFis} ${c.unidade||''}</div></div>
+      </div>
+      ${execs.length?`<table style="width:100%;border-collapse:collapse;font-size:10px;border-top:1px solid #eee">
+        <thead><tr style="background:#f5f5f5"><th style="padding:5px 8px;text-align:left">Data</th><th>Atividade</th><th>Município</th><th>Qtd</th><th>Valor</th></tr></thead>
+        <tbody>${execs.map(e=>`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:4px 8px">${e.data||'—'}</td><td style="padding:4px 8px">${e.atividadeNome||'—'}</td><td style="padding:4px 8px">${e.municipioNome||'—'}</td><td style="padding:4px 8px;text-align:center">${e.qtd||0}</td><td style="padding:4px 8px">${fmt(e.valor)}</td></tr>`).join('')}</tbody>
+      </table>`:'<div style="padding:10px;color:#888;font-size:11px;text-align:center">Nenhum registro de execução</div>'}
+    </div>`;
+  }).join('');
+  abrirPDF('Execução Físico-Financeira', html, data, _contratos.length + ' contratos');
+}
+
+function relProgramaCompleto() {
+  const data = new Date().toLocaleDateString('pt-BR');
+  const html = _programas.map(p => {
+    const conts = _contratos.filter(c => c.programaId === p.id);
+    const benefs = _benef.filter(b => b.programaId === p.id);
+    const totalVal = conts.reduce((a,c)=>a+(c.valor||0),0);
+    return `<div style="margin-bottom:24px;page-break-inside:avoid">
+      <div style="background:#1a6b3a;color:#fff;padding:10px 14px;border-radius:4px;margin-bottom:8px">
+        <div style="font-weight:800;font-size:14px">${p.nome} ${p.sigla?'('+p.sigla+')':''}</div>
+        <div style="font-size:11px;opacity:.8">${p.financiador||''}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div style="background:#f5f5f5;padding:10px;border-radius:4px"><div style="font-size:9px;color:#888">CONTRATOS</div><div style="font-weight:800">${conts.length}</div></div>
+        <div style="background:#f5f5f5;padding:10px;border-radius:4px"><div style="font-size:9px;color:#888">VALOR TOTAL</div><div style="font-weight:800">${fmt(totalVal)}</div></div>
+        <div style="background:#f5f5f5;padding:10px;border-radius:4px"><div style="font-size:9px;color:#888">BENEFICIÁRIOS</div><div style="font-weight:800">${benefs.length}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+  abrirPDF('Resumo por Programa', html, data, _programas.length + ' programas');
+}
+
+function abrirPDF(titulo, conteudo, data, resumo) {
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titulo}</title>
+  <style>@page{size:A4;margin:15mm}*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif}body{color:#1a1a1a;font-size:12px}.header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:3px solid #1a6b3a;margin-bottom:16px}.header h1{font-size:18px;font-weight:800;color:#1a6b3a}.header p{font-size:11px;color:#888;margin-top:2px}.footer{margin-top:20px;padding-top:10px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:9px;color:#aaa}</style>
+  </head><body>
+  <div class="header"><div><h1>${titulo}</h1><p>Associação Cristã de Base — ${resumo}</p></div><div style="text-align:right"><div style="font-size:20px">🌱</div><p style="font-size:11px;color:#888">Emitido em ${data}</p></div></div>
+  ${conteudo}
+  <div class="footer"><span>Associação Cristã de Base — ACB Sistema</span><span>Gerado em ${data}</span></div>
+  <script>window.onload=()=>setTimeout(()=>window.print(),400);<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+// ─── SELECTS AUXILIARES ────────────────────────────────────────
+function preencherSelects() {
+  preencherSelectProgramas('cont-programa');
+  preencherSelectProgramas('benef-programa');
+  preencherSelectProgramas('filtro-prog-contrato');
+  preencherSelectProgramas('filtro-prog-benef');
+  preencherSelectMunicipios('exec-municipio');
+  preencherSelectMunicipios('filtro-mun-benef');
+  preencherSelectContratos('exec-contrato');
+  preencherSelectContratos('sel-contrato-exec');
+  preencherSelectTecnicos('exec-tecnico');
+}
+
+function preencherSelectProgramas(id) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const cur = sel.value;
+  const primeiro = sel.options[0]?.text || 'Selecione...';
+  sel.innerHTML = `<option value="">${primeiro}</option>` + _programas.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+function preencherSelectMunicipios(id) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const cur = sel.value;
+  const primeiro = sel.options[0]?.text || 'Selecione...';
+  sel.innerHTML = `<option value="">${primeiro}</option>` + _municipios.map(m => `<option value="${m.id}">${m.nome}/${m.estado}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+function preencherSelectContratos(id) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">Selecione...</option>` + _contratos.map(c => `<option value="${c.id}">${c.numero}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+function preencherSelectTecnicos(id) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  sel.innerHTML = `<option value="">Selecione...</option>` + _tecnicos.filter(t=>t.status!=='inativo').map(t => `<option value="${t.id}">${t.nome}</option>`).join('');
+}
+
+function carregarMunicipiosPorEstado(estado, selId, valorPre='') {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  const lista = _municipios.filter(m => m.estado === estado);
+  sel.innerHTML = '<option value="">Selecione...</option>' + lista.map(m => `<option value="${m.id}" ${m.id===valorPre?'selected':''}>${m.nome}</option>`).join('');
+}
+
+function carregarContratosPorPrograma(progId, selId, valorPre='') {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  const lista = _contratos.filter(c => c.programaId === progId);
+  sel.innerHTML = '<option value="">Selecione...</option>' + lista.map(c => `<option value="${c.id}" ${c.id===valorPre?'selected':''}>${c.numero}</option>`).join('');
+}
+
+// ─── MÁSCARAS ──────────────────────────────────────────────────
+function mascaraCPF(el) {
+  let v = el.value.replace(/\D/g,'');
+  v = v.replace(/(\d{3})(\d)/,'$1.$2');
+  v = v.replace(/(\d{3})(\d)/,'$1.$2');
+  v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  el.value = v;
+}
+function mascaraTel(el) {
+  let v = el.value.replace(/\D/g,'');
+  v = v.replace(/^(\d{2})(\d)/,'($1) $2');
+  v = v.replace(/(\d{5})(\d)/,'$1-$2');
+  el.value = v;
+}
+
+// ─── FECHAR MODAL CLICANDO FORA ────────────────────────────────
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) fecharModal(overlay.id); });
+});
+</script>
+</body>
+</html>
