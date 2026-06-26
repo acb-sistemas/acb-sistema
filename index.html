@@ -937,18 +937,23 @@ const PERFIS = { admin:'Administrador', coordenador:'Coordenador', financeiro:'F
 
 // ─── INIT ──────────────────────────────────────────────────────
 async function iniciarApp() {
-  await Promise.all([
-    carregarProgramas(),
-    carregarContratos(),
-    carregarMunicipios(),
-    carregarTecnicos(),
-  ]);
-  atualizarDashboard();
-  carregarBenef();
-  carregarExecucoes();
-  carregarRepasses();
-  carregarUsuarios();
-  preencherSelects();
+  try {
+    await Promise.all([
+      carregarProgramas().catch(e => { console.error('programas:', e); _programas = []; renderProgramas(); }),
+      carregarContratos().catch(e => { console.error('contratos:', e); _contratos = []; renderContratos(); }),
+      carregarMunicipios().catch(e => { console.error('municipios:', e); _municipios = []; renderMunicipios(); }),
+      carregarTecnicos().catch(e => { console.error('tecnicos:', e); _tecnicos = []; renderTecnicos(); }),
+    ]);
+    atualizarDashboard();
+    carregarBenef().catch(e => { console.error('benef:', e); _beneficiarios = []; renderBenef(); });
+    carregarExecucoes().catch(e => { console.error('execucoes:', e); _execucoes = []; renderExecucoes(); });
+    carregarRepasses().catch(e => console.error('repasses:', e));
+    carregarUsuarios().catch(e => { console.error('usuarios:', e); _usuarios = []; renderUsuarios(); });
+    preencherSelects();
+  } catch(e) {
+    console.error('Erro ao iniciar app:', e);
+    alert('Erro ao carregar dados. Verifique sua conexão e tente novamente.\n\n' + e.message);
+  }
 }
 
 // ─── NAVIGATION ────────────────────────────────────────────────
