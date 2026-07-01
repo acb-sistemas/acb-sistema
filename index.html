@@ -46,6 +46,39 @@
 .login-btn:hover{opacity:.9}
 .login-err{background:#fef2f2;border:1px solid #fecaca;color:var(--red);padding:10px 14px;border-radius:8px;font-size:12px;margin-top:12px;display:none}
 .login-err.show{display:block}
+.login-switch{text-align:center;margin-top:18px;font-size:12px;color:var(--green2);font-weight:700;cursor:pointer;padding-top:14px;border-top:1px solid var(--border)}
+.login-switch:hover{color:var(--green);text-decoration:underline}
+.login-hint{text-align:center;font-size:11px;color:var(--text3);margin-top:-6px;margin-bottom:18px}
+
+/* PROJETO */
+.proj-hero{background:linear-gradient(135deg,var(--dark),#1a4d2a);border-radius:14px;padding:24px;color:#fff;margin-bottom:18px}
+.proj-hero h2{font-size:19px;font-weight:800;margin-bottom:6px}
+.proj-hero .proj-obj{font-size:13px;line-height:1.5;color:rgba(255,255,255,.85);margin-bottom:14px}
+.proj-tags{display:flex;flex-wrap:wrap;gap:8px}
+.proj-tag{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600}
+.proj-tag b{color:var(--gold)}
+.meta-block{border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.meta-head{background:var(--green3);padding:13px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.meta-head .mh-tit{font-size:13px;font-weight:800;color:var(--dark)}
+.meta-head .mh-tit small{display:block;font-size:10px;color:var(--green);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.meta-head .mh-val{font-size:15px;font-weight:800;color:var(--green2);white-space:nowrap}
+.etapa-tit{padding:10px 16px;background:#fafcfa;font-size:12px;font-weight:700;color:var(--text2);border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:10px}
+/* WELCOME (modelo Gestão KPI) */
+.welcome{text-align:center;max-width:560px;margin:0 auto;padding:8vh 20px}
+.welcome-icon{width:120px;height:120px;object-fit:contain;margin-bottom:26px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.12))}
+.welcome h1{font-size:30px;font-weight:800;color:var(--green2);margin-bottom:12px}
+.welcome p{font-size:15px;color:var(--text3);line-height:1.6}
+.nav-item .nav-lock{margin-left:auto;font-size:12px;opacity:.55}
+/* STATUS / SEMÁFORO */
+.st{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.st-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.st-ok{background:#dcfce7;color:#166534}
+.st-late{background:#fee2e2;color:#991b1b}
+.st-wait{background:#fef9c3;color:#854d0e}
+.mini-prog{height:7px;background:#e8f5ed;border-radius:6px;overflow:hidden;margin-top:5px;max-width:280px}
+.mini-prog>i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--green2))}
+.acomp-num{width:64px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center}
+.acomp-date{padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:#fff}
 
 /* APP */
 #app{display:none}
@@ -214,6 +247,7 @@ tbody tr:last-child td{border-bottom:none}
       <h1>ACB SISTEMA</h1>
       <p>Associação Cristã de Base</p>
     </div>
+    <div class="login-hint">Acesso administrativo</div>
     <div class="login-field">
       <label>E-mail</label>
       <input id="login-email" type="email" placeholder="seu@email.com.br" autocomplete="email">
@@ -224,6 +258,7 @@ tbody tr:last-child td{border-bottom:none}
     </div>
     <button class="login-btn" onclick="fazerLogin()">Entrar no Sistema</button>
     <div id="login-err" class="login-err">E-mail ou senha inválidos.</div>
+    <div class="login-switch" onclick="fecharLoginAdmin()">← Voltar aos projetos</div>
   </div>
 </div>
 
@@ -246,13 +281,23 @@ tbody tr:last-child td{border-bottom:none}
       <div class="sidebar-user-role" id="sidebar-user-role">—</div>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-group">
+      <div class="nav-group" id="nav-geral" style="display:none">
+        <div class="nav-group-label">Geral</div>
+        <div class="nav-item" data-geral="1" onclick="navGestaoGeral()">
+          <span class="nav-item-icon">👑</span> Gestão Geral
+        </div>
+      </div>
+      <div class="nav-group" id="nav-projetos" style="display:none">
+        <div class="nav-group-label">Projetos</div>
+        <div id="nav-projetos-list"></div>
+      </div>
+      <div class="nav-group grp-sistema">
         <div class="nav-group-label">Geral</div>
         <div class="nav-item active" onclick="navigate('dashboard')">
           <span class="nav-item-icon">🏠</span> Dashboard
         </div>
       </div>
-      <div class="nav-group">
+      <div class="nav-group grp-sistema">
         <div class="nav-group-label">Programas</div>
         <div class="nav-item" onclick="navigate('programas')">
           <span class="nav-item-icon">📋</span> Programas
@@ -261,7 +306,7 @@ tbody tr:last-child td{border-bottom:none}
           <span class="nav-item-icon">📄</span> Contratos
         </div>
       </div>
-      <div class="nav-group">
+      <div class="nav-group grp-sistema">
         <div class="nav-group-label">Beneficiários</div>
         <div class="nav-item" onclick="navigate('beneficiarios')">
           <span class="nav-item-icon">👨‍👩‍👧‍👦</span> Beneficiários
@@ -270,7 +315,7 @@ tbody tr:last-child td{border-bottom:none}
           <span class="nav-item-icon">📍</span> Municípios
         </div>
       </div>
-      <div class="nav-group">
+      <div class="nav-group grp-sistema">
         <div class="nav-group-label">Execução</div>
         <div class="nav-item" onclick="navigate('execucao')">
           <span class="nav-item-icon">⚙️</span> Execução Físico-Financeira
@@ -290,7 +335,8 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="logout-btn" onclick="fazerLogout()">🚪 Sair do sistema</div>
+      <div class="logout-btn" onclick="fazerLogout()">🚪 Sair / Bloquear</div>
+      <div onclick="abrirLoginAdmin()" style="text-align:center;font-size:10px;color:rgba(255,255,255,.35);cursor:pointer;margin-top:8px">⚙️ Administração</div>
       <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);text-align:center">
         <div style="font-size:8px;color:rgba(255,255,255,.25);letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Desenvolvido por</div>
         <img src="Falcioni.jpg" alt="Falcioni Consultoria" style="height:42px;width:auto;opacity:.85">
@@ -308,6 +354,9 @@ tbody tr:last-child td{border-bottom:none}
       <div class="topbar-actions" id="topbar-actions"></div>
     </div>
     <div class="content">
+
+      <!-- PROJETO (dinâmico) -->
+      <div class="page" id="page-projeto"></div>
 
       <!-- DASHBOARD -->
       <div class="page active" id="page-dashboard">
@@ -495,6 +544,27 @@ tbody tr:last-child td{border-bottom:none}
 </div><!-- /app -->
 
 <!-- MODAIS -->
+<!-- Modal Senha de Projeto -->
+<div class="modal-overlay" id="modal-senha-proj">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <h2 id="msp-titulo">🔒 Acesso ao Projeto</h2>
+      <button class="modal-close" onclick="fecharModal('modal-senha-proj')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Senha de acesso</label>
+        <input id="msp-senha" type="password" placeholder="••••••••" autocomplete="off">
+      </div>
+      <div id="msp-err" class="alert alert-error" style="display:none;margin-top:12px">Senha inválida. Tente novamente.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-senha-proj')">Cancelar</button>
+      <button class="btn btn-green" onclick="confirmarSenhaProj()">Acessar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Programa -->
 <div class="modal-overlay" id="modal-programa">
   <div class="modal">
@@ -874,6 +944,485 @@ let _programas = [], _contratos = [], _municipios = [], _tecnicos = [];
 let _benef = [], _execucoes = [], _usuarios = [], _repasses = [];
 let _filtroContratoExec = '';
 
+// ─── PORTAL DE PROJETOS ────────────────────────────────────────
+// Senhas master (acessam TODOS os projetos)
+const MASTER = {
+  brigida: { nome:'Brígida', papel:'Financeiro', senha:'brigida@2026' },
+  ery:     { nome:'Ery Claudio', papel:'Presidente', senha:'presidente@2026' }
+};
+
+// Cada projeto = uma aba. Senha própria + dados do Plano de Trabalho.
+const PROJETOS = {
+  'ceara-sem-fome': {
+    id:'ceara-sem-fome', nome:'Ceará Sem Fome', icone:'🍲', senha:'ceara2@26',
+    objeto:'Execução do Programa Ceará Sem Fome no gerenciamento das Unidades Sociais de Produção de Refeições (USPRs) — Lote 22, Edital nº 011/2024.',
+    concedente:'Secretaria do Desenvolvimento Agrário (SDA)',
+    edital:'Edital nº 011/2024 — Lote 22',
+    ptNumero:'1432789/2025', registro:'10884',
+    periodoIni:'25/06/2025', periodoFim:'24/12/2026',
+    responsavel:'Ery Claudio Alves Ferreira Silva',
+    banco:'Caixa Econômica Federal — Ag. 0684-0 / Conta 575472522-3 (Crato)',
+    publico:'Pessoas em situação de vulnerabilidade social cadastradas no CadÚnico, atendidas pelas USPRs.',
+    valorGlobal:14139702.45, repasse:14139702.45, contrapartida:0,
+    desemb2025:4713234.18, desemb2026:9426468.27, repasseMensal:785539.03, parcelas:18,
+    metas:[
+      { n:1, titulo:'Contratação de Pessoal e Acompanhamento das USPR', valor:2273503.41, etapas:[
+        { cod:'1.1', titulo:'Despesas para Contratação da equipe', valor:536083.41, itens:[
+          {cod:'1.1.1', desc:'Coordenador(a) Nível Superior', un:'UND', qtd:1, vUnit:90000, vTotal:90000},
+          {cod:'1.1.2', desc:'Gerente Financeiro', un:'UND', qtd:1, vUnit:68400, vTotal:68400},
+          {cod:'1.1.3', desc:'Auxiliar Administrativo', un:'UND', qtd:1, vUnit:45180, vTotal:45180},
+          {cod:'1.1.4', desc:'Agentes de Campo Nível Médio', un:'UND', qtd:4, vUnit:47520, vTotal:190080},
+          {cod:'1.1.5', desc:'Encargos Patronais (INSS, FGTS, PIS, Rescisões)', un:'UND', qtd:1, vUnit:142423.41, vTotal:142423.41},
+        ]},
+        { cod:'1.2', titulo:'Apoio, Acompanhamento e Monitoramento das USPR', valor:1737420.00, itens:[
+          {cod:'1.2.1', desc:'Deslocamento e Logística (combustíveis, locação de veículos)', un:'UND', qtd:52, vUnit:8160, vTotal:424320},
+          {cod:'1.2.2', desc:'Ajuda de custo Agente Popular de Segurança Alimentar', un:'UND', qtd:52, vUnit:25200, vTotal:1310400},
+          {cod:'1.2.3', desc:'Material de expediente', un:'UND', qtd:1, vUnit:2700, vTotal:2700},
+        ]},
+      ]},
+      { n:2, titulo:'Gerenciar Unidades Sociais de Produção de Refeições', valor:11866199.04, etapas:[
+        { cod:'2.1', titulo:'Produção de Refeições', valor:11866199.04, itens:[
+          {cod:'2.1.1', desc:'Gêneros Alimentícios (Proteínas, Carboidratos, Hortaliças, Sódios e Lipídios)', un:'UND', qtd:52, vUnit:195806.52, vTotal:10181939.04},
+          {cod:'2.1.2', desc:'Embalagens e Descartáveis', un:'UND', qtd:52, vUnit:18000, vTotal:936000},
+          {cod:'2.1.3', desc:'EPIs', un:'UND', qtd:52, vUnit:720, vTotal:37440},
+          {cod:'2.1.4', desc:'Material de Higienização e Limpeza', un:'UND', qtd:52, vUnit:3600, vTotal:187200},
+          {cod:'2.1.5', desc:'Despesa Operacional — Gás', un:'UND', qtd:52, vUnit:7050, vTotal:366600},
+          {cod:'2.1.6', desc:'Despesa Operacional — Água', un:'UND', qtd:29, vUnit:1380, vTotal:40020},
+          {cod:'2.1.7', desc:'Despesa Operacional — Luz', un:'UND', qtd:52, vUnit:1890, vTotal:98280},
+          {cod:'2.1.8', desc:'Manutenção de Equipamentos', un:'UND', qtd:52, vUnit:360, vTotal:18720},
+        ]},
+      ]},
+    ],
+    cronograma:[
+      {data:'10/07/2025', valor:785539.03},{data:'10/08/2025', valor:785539.03},{data:'10/09/2025', valor:785539.03},
+      {data:'10/10/2025', valor:785539.03},{data:'10/11/2025', valor:785539.03},{data:'10/12/2025', valor:785539.02},
+      {data:'10/01/2026', valor:785539.03},{data:'10/02/2026', valor:785539.02},{data:'10/03/2026', valor:785539.02},
+      {data:'10/04/2026', valor:785539.02},{data:'10/05/2026', valor:785539.02},{data:'10/06/2026', valor:785539.03},
+      {data:'10/07/2026', valor:785539.02},{data:'10/08/2026', valor:785539.00},{data:'10/09/2026', valor:785539.03},
+      {data:'10/10/2026', valor:785539.03},{data:'10/11/2026', valor:785539.03},{data:'10/12/2026', valor:785539.03},
+    ]
+  },
+};
+
+// ── Portal: layout tipo sistema, senha ao clicar no projeto ──
+let _unlocked = new Set();  // projetos liberados nesta sessão
+let _masterOn = false;      // senha master libera todos
+let _pendingProj = null;    // projeto aguardando senha
+
+function iniciarPortal(){
+  document.getElementById('app').classList.add('show');
+  document.querySelectorAll('.grp-sistema').forEach(g => g.style.display='none');
+  document.getElementById('nav-admin').style.display='none';
+  document.getElementById('nav-geral').style.display='block';
+  document.getElementById('nav-projetos').style.display='block';
+  document.getElementById('sidebar-user-name').textContent = 'Portal ACB';
+  document.getElementById('sidebar-user-role').textContent = 'Gestão de Projetos';
+  montarNavProjetos(Object.keys(PROJETOS));
+  mostrarBoasVindas();
+}
+
+// ── Gestão Geral (visão consolidada — acesso master) ──
+function navGestaoGeral(){
+  if (_masterOn) { abrirGestaoGeral(); return; }
+  _pendingProj = '__geral__';
+  document.getElementById('msp-titulo').textContent = '👑 Gestão Geral';
+  document.getElementById('msp-senha').value = '';
+  document.getElementById('msp-err').style.display = 'none';
+  abrirModal('modal-senha-proj');
+  setTimeout(() => document.getElementById('msp-senha').focus(), 120);
+}
+
+async function abrirGestaoGeral(){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-projeto').classList.add('active');
+  document.querySelector('.nav-item[data-geral]')?.classList.add('active');
+  document.getElementById('topbar-title').textContent = 'Gestão Geral';
+  await Promise.all(Object.keys(PROJETOS).map(id => carregarAcomp(id)));
+  renderGestaoGeral();
+  if (window.innerWidth < 768) closeSidebar();
+}
+
+function renderGestaoGeral(){
+  const ids = Object.keys(PROJETOS);
+  const totalGlobal = ids.reduce((s,id) => s + PROJETOS[id].valorGlobal, 0);
+  let totalAtraso = 0, metasOk = 0, metasTot = 0;
+  const rows = ids.map(id => {
+    const p = PROJETOS[id], fin = financeiro(id), fis = percFisico(id);
+    const ok = p.metas.filter(m => metaAlcancada(id, m)).length;
+    metasOk += ok; metasTot += p.metas.length; totalAtraso += fin.la;
+    const st = fin.la ? 'late' : (fis >= 100 ? 'ok' : 'wait');
+    const stLbl = fin.la ? 'Com atraso' : (fis >= 100 ? 'Concluído' : 'Em andamento');
+    return `<tr style="cursor:pointer" onclick="abrirProjeto('${id}')">
+      <td style="font-weight:700">${p.icone||'📁'} ${p.nome}</td>
+      <td style="text-align:center">${fis}%</td>
+      <td style="text-align:center">${fin.perc}%</td>
+      <td style="text-align:center">${ok}/${p.metas.length}</td>
+      <td style="text-align:right;font-weight:700;white-space:nowrap">${fmt(p.valorGlobal)}</td>
+      <td><span class="st st-${st}"><span class="st-dot"></span>${stLbl}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('page-projeto').innerHTML = `
+    <div class="proj-hero">
+      <h2>👑 Gestão Geral</h2>
+      <div class="proj-obj">Visão consolidada de todos os projetos da Associação Cristã de Base.</div>
+    </div>
+    <div class="grid-4" style="margin-bottom:16px">
+      <div class="kpi"><div class="kpi-val">${ids.length}</div><div class="kpi-label">Projetos Ativos</div></div>
+      <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-val" style="font-size:23px">${fmt(totalGlobal)}</div><div class="kpi-label">Valor Global Total</div></div>
+      <div class="kpi" style="border-left-color:var(--green2)"><div class="kpi-val">${metasOk}/${metasTot}</div><div class="kpi-label">Metas Alcançadas</div></div>
+      <div class="kpi" style="border-left-color:${totalAtraso ? 'var(--red)' : 'var(--gold)'}"><div class="kpi-val">${totalAtraso}</div><div class="kpi-label">Parcelas em Atraso</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Todos os <span>Projetos</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Projeto</th><th style="text-align:center">% Físico</th><th style="text-align:center">% Financ.</th><th style="text-align:center">Metas</th><th style="text-align:right">Valor Global</th><th>Situação</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+      <p style="font-size:11px;color:var(--text3);margin-top:10px">Clique em um projeto para abrir o plano de trabalho e o acompanhamento completo.</p>
+    </div>
+  `;
+}
+
+function montarNavProjetos(ids){
+  const box = document.getElementById('nav-projetos-list');
+  box.innerHTML = ids.map(id => {
+    const p = PROJETOS[id];
+    const liberado = _masterOn || _unlocked.has(id);
+    const cad = liberado ? '' : `<span class="nav-lock">🔒</span>`;
+    return `<div class="nav-item" data-proj="${id}" onclick="navProjeto('${id}')"><span class="nav-item-icon">${p.icone||'📁'}</span> ${p.nome}${cad}</div>`;
+  }).join('');
+  // cadeado no item Gestão Geral
+  const g = document.querySelector('.nav-item[data-geral]');
+  if (g){
+    g.querySelector('.nav-lock')?.remove();
+    if (!_masterOn) g.insertAdjacentHTML('beforeend', '<span class="nav-lock">🔒</span>');
+  }
+}
+
+function mostrarBoasVindas(){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('topbar-title').textContent = 'Início';
+  const el = document.getElementById('page-projeto');
+  el.classList.add('active');
+  el.innerHTML = `<div class="welcome">
+    <img src="logo-acb.png" alt="ACB" class="welcome-icon">
+    <h1>Bem-vindo ao Portal ACB</h1>
+    <p>Selecione um projeto na barra lateral para acessar o plano de trabalho, as metas e a execução físico-financeira.</p>
+  </div>`;
+}
+
+function navProjeto(id){
+  if (!_masterOn && !_unlocked.has(id)) { pedirSenhaProj(id); return; }
+  abrirProjeto(id);
+}
+
+async function abrirProjeto(id){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-projeto').classList.add('active');
+  document.querySelector(`.nav-item[data-proj="${id}"]`)?.classList.add('active');
+  document.getElementById('topbar-title').textContent = PROJETOS[id].nome;
+  await carregarAcomp(id);
+  renderProjeto(id);
+  if (window.innerWidth < 768) closeSidebar();
+}
+
+function pedirSenhaProj(id){
+  _pendingProj = id;
+  document.getElementById('msp-titulo').textContent = '🔒 ' + PROJETOS[id].nome;
+  document.getElementById('msp-senha').value = '';
+  document.getElementById('msp-err').style.display = 'none';
+  abrirModal('modal-senha-proj');
+  setTimeout(() => document.getElementById('msp-senha').focus(), 120);
+}
+
+function confirmarSenhaProj(){
+  const s = document.getElementById('msp-senha').value.trim();
+  const err = document.getElementById('msp-err');
+  const m = Object.values(MASTER).find(x => x.senha === s);
+  if (m) {  // senha master → libera todos
+    _masterOn = true;
+    document.getElementById('sidebar-user-name').textContent = m.nome;
+    document.getElementById('sidebar-user-role').textContent = m.papel + ' • Acesso Master';
+    montarNavProjetos(Object.keys(PROJETOS));
+    document.getElementById('modal-senha-proj').classList.remove('show');
+    if (_pendingProj === '__geral__') abrirGestaoGeral(); else abrirProjeto(_pendingProj);
+    return;
+  }
+  if (_pendingProj === '__geral__') { err.style.display = 'block'; return; }  // Gestão Geral só com senha master
+  const p = PROJETOS[_pendingProj];
+  if (p && s === p.senha) {  // senha do projeto → libera só ele
+    _unlocked.add(_pendingProj);
+    montarNavProjetos(Object.keys(PROJETOS));
+    document.getElementById('modal-senha-proj').classList.remove('show');
+    abrirProjeto(_pendingProj);
+    return;
+  }
+  err.style.display = 'block';
+}
+
+// ── Acesso administrativo (Firebase) — discreto, via rodapé ──
+function abrirLoginAdmin(){ document.getElementById('login-screen').classList.add('show'); setTimeout(()=>document.getElementById('login-email')?.focus(),120); }
+function fecharLoginAdmin(){ document.getElementById('login-screen').classList.remove('show'); }
+
+function renderProjeto(id){
+  const p = PROJETOS[id];
+  const tags = [
+    `<span class="proj-tag">📑 <b>PT</b> ${p.ptNumero}</span>`,
+    `<span class="proj-tag">🏛️ ${p.concedente}</span>`,
+    `<span class="proj-tag">📋 ${p.edital}</span>`,
+    `<span class="proj-tag">📅 ${p.periodoIni} → ${p.periodoFim}</span>`,
+  ].join('');
+
+  const kpis = `<div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-val">${fmt(p.valorGlobal)}</div><div class="kpi-label">Valor Global</div><div class="kpi-sub">${p.parcelas} parcelas</div></div>
+    <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-val">${fmt(p.repasseMensal)}</div><div class="kpi-label">Repasse Mensal</div><div class="kpi-sub">média/mês</div></div>
+    <div class="kpi" style="border-left-color:var(--gold)"><div class="kpi-val">${fmt(p.desemb2025)}</div><div class="kpi-label">Desembolso 2025</div></div>
+    <div class="kpi" style="border-left-color:var(--gold)"><div class="kpi-val">${fmt(p.desemb2026)}</div><div class="kpi-label">Desembolso 2026</div></div>
+  </div>`;
+
+  // Tabela de metas/etapas/itens
+  const metasHtml = p.metas.map(m => {
+    const etapas = m.etapas.map(e => {
+      const itens = e.itens.map(it => `<tr>
+        <td style="white-space:nowrap;color:var(--text3)">${it.cod}</td>
+        <td>${it.desc}</td>
+        <td style="text-align:center">${it.un}</td>
+        <td style="text-align:center">${it.qtd}</td>
+        <td style="text-align:right;white-space:nowrap">${fmt(it.vUnit)}</td>
+        <td style="text-align:right;white-space:nowrap;font-weight:700">${fmt(it.vTotal)}</td>
+      </tr>`).join('');
+      return `<div class="etapa-tit"><span>Etapa ${e.cod} — ${e.titulo}</span><span style="color:var(--green2)">${fmt(e.valor)}</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Item</th><th>Descrição</th><th style="text-align:center">Un.</th><th style="text-align:center">Qtd</th><th style="text-align:right">Valor Unit.</th><th style="text-align:right">Valor Total</th></tr></thead>
+          <tbody>${itens}</tbody>
+        </table></div>`;
+    }).join('');
+    return `<div class="meta-block">
+      <div class="meta-head"><div class="mh-tit"><small>Meta ${m.n}</small>${m.titulo}</div><div class="mh-val">${fmt(m.valor)}</div></div>
+      ${etapas}
+    </div>`;
+  }).join('');
+
+  // Cronograma de desembolso
+  const cron = p.cronograma.map((c,i) => `<tr><td style="color:var(--text3)">${i+1}ª</td><td>${c.data}</td><td style="text-align:right;font-weight:700">${fmt(c.valor)}</td></tr>`).join('');
+  const totalCron = p.cronograma.reduce((s,c)=>s+c.valor,0);
+
+  document.getElementById('page-projeto').innerHTML = `
+    <div class="proj-hero">
+      <h2>${p.icone||'📁'} ${p.nome}</h2>
+      <div class="proj-obj">${p.objeto}</div>
+      <div class="proj-tags">${tags}</div>
+    </div>
+
+    ${kpis}
+
+    <div class="page-tabs" id="proj-tabs">
+      <div class="page-tab active" onclick="projTab(this,'pt-geral')">Visão Geral</div>
+      <div class="page-tab" onclick="projTab(this,'pt-metas')">Metas & Despesas</div>
+      <div class="page-tab" onclick="projTab(this,'pt-cron')">Cronograma de Desembolso</div>
+      <div class="page-tab" onclick="projTab(this,'pt-acomp')">📊 Acompanhamento</div>
+    </div>
+
+    <div id="pt-geral" class="proj-sec">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Identificação do <span>Projeto</span></div>
+          <table><tbody>
+            <tr><td style="font-weight:700;width:40%">Concedente</td><td>${p.concedente}</td></tr>
+            <tr><td style="font-weight:700">Edital / Lote</td><td>${p.edital}</td></tr>
+            <tr><td style="font-weight:700">Plano de Trabalho</td><td>nº ${p.ptNumero} · Registro ${p.registro}</td></tr>
+            <tr><td style="font-weight:700">Período</td><td>${p.periodoIni} a ${p.periodoFim}</td></tr>
+            <tr><td style="font-weight:700">Responsável</td><td>${p.responsavel}</td></tr>
+            <tr><td style="font-weight:700">Dados Bancários</td><td>${p.banco}</td></tr>
+          </tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-title">Resumo <span>Financeiro</span></div>
+          <table><tbody>
+            <tr><td style="font-weight:700;width:55%">Valor Global</td><td style="text-align:right;font-weight:800;color:var(--green2)">${fmt(p.valorGlobal)}</td></tr>
+            <tr><td style="font-weight:700">Repasse (Concedente)</td><td style="text-align:right">${fmt(p.repasse)} (100%)</td></tr>
+            <tr><td style="font-weight:700">Contrapartida</td><td style="text-align:right">${fmt(p.contrapartida)} (0%)</td></tr>
+            <tr><td style="font-weight:700">Meta 1</td><td style="text-align:right">${fmt(p.metas[0].valor)}</td></tr>
+            <tr><td style="font-weight:700">Meta 2</td><td style="text-align:right">${fmt(p.metas[1].valor)}</td></tr>
+          </tbody></table>
+          <div style="margin-top:14px;padding:12px 14px;background:var(--green3);border-radius:8px;font-size:12px;color:var(--text2)">
+            <b>Público-alvo:</b> ${p.publico}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="pt-metas" class="proj-sec" style="display:none">
+      ${metasHtml}
+    </div>
+
+    <div id="pt-cron" class="proj-sec" style="display:none">
+      <div class="card">
+        <div class="card-title">Cronograma de <span>Desembolso</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Parcela</th><th>Data Prevista</th><th style="text-align:right">Valor</th></tr></thead>
+          <tbody>${cron}</tbody>
+          <tfoot><tr style="background:var(--green3)"><td colspan="2" style="font-weight:800;padding:11px 14px">TOTAL</td><td style="text-align:right;font-weight:800;padding:11px 14px">${fmt(totalCron)}</td></tr></tfoot>
+        </table></div>
+      </div>
+    </div>
+
+    <div id="pt-acomp" class="proj-sec" style="display:none">${renderAcompanhamento(id)}</div>
+  `;
+}
+
+function projTab(el, secId){
+  el.parentElement.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#page-projeto .proj-sec').forEach(s => s.style.display='none');
+  document.getElementById(secId).style.display='block';
+}
+
+// ─── ACOMPANHAMENTO (metas × prazos) ───────────────────────────
+let _acomp = {}; // {projId:{etapas:{cod:{perc}}, parcelas:{data:{pago,dataReal}}}}
+
+function podeEditarAcomp(){ return _masterOn || !!currentUser; }
+function parseBR(s){ const [d,m,y] = s.split('/'); return new Date(+y, +m-1, +d); }
+function hojeD(){ const h = new Date(); h.setHours(0,0,0,0); return h; }
+function isoParaBR(s){ return s ? s.split('-').reverse().join('/') : '—'; }
+
+async function carregarAcomp(id){
+  if (_acomp[id]) return;
+  let data = null;
+  try { const doc = await db.collection('acompanhamento').doc(id).get(); if (doc.exists) data = doc.data(); }
+  catch(e){ console.warn('acomp: leitura Firestore indisponível, usando local', e.message); }
+  if (!data) { const ls = localStorage.getItem('acomp_'+id); if (ls) data = JSON.parse(ls); }
+  _acomp[id] = data || {};
+  _acomp[id].etapas = _acomp[id].etapas || {};
+  _acomp[id].parcelas = _acomp[id].parcelas || {};
+}
+
+async function salvarAcomp(id){
+  const data = _acomp[id];
+  try { localStorage.setItem('acomp_'+id, JSON.stringify(data)); } catch(e){}
+  try { await db.collection('acompanhamento').doc(id).set(data, {merge:true}); }
+  catch(e){ console.warn('acomp: gravação Firestore falhou (salvo local)', e.message); }
+}
+
+function percEtapa(id, cod){ return Math.max(0, Math.min(100, _acomp[id].etapas[cod]?.perc || 0)); }
+function metaAlcancada(id, m){ return m.etapas.every(e => percEtapa(id, e.cod) >= 100); }
+
+function statusMeta(id, m){
+  if (metaAlcancada(id, m)) return 'ok';
+  const p = PROJETOS[id], ini = parseBR(p.periodoIni), fim = parseBR(p.periodoFim), h = hojeD();
+  const esp = h <= ini ? 0 : h >= fim ? 100 : (h - ini) / (fim - ini) * 100;
+  const tot = m.etapas.reduce((s,e) => s + e.valor, 0);
+  const real = m.etapas.reduce((s,e) => s + e.valor * percEtapa(id, e.cod) / 100, 0) / tot * 100;
+  return real + 5 < esp ? 'late' : 'wait';
+}
+
+function percFisico(id){
+  const p = PROJETOS[id]; let tot = 0, acc = 0;
+  p.metas.forEach(m => m.etapas.forEach(e => { tot += e.valor; acc += e.valor * percEtapa(id, e.cod) / 100; }));
+  return tot ? Math.round(acc / tot * 100) : 0;
+}
+
+function statusParcela(id, c){
+  const r = _acomp[id].parcelas[c.data], prev = parseBR(c.data);
+  if (r && r.pago) { const dr = r.dataReal ? new Date(r.dataReal + 'T00:00:00') : prev; return dr <= prev ? 'ok' : 'late'; }
+  return hojeD() > prev ? 'late' : 'wait';
+}
+
+function financeiro(id){
+  const p = PROJETOS[id]; let receb = 0, np = 0, la = 0, wa = 0;
+  p.cronograma.forEach(c => {
+    const st = statusParcela(id, c);
+    if (_acomp[id].parcelas[c.data]?.pago) receb += c.valor;
+    if (st === 'ok') np++; else if (st === 'late') la++; else wa++;
+  });
+  return { receb, perc: Math.round(receb / p.valorGlobal * 100), np, la, wa };
+}
+
+function refreshAcomp(id){ const s = document.getElementById('pt-acomp'); if (s) s.innerHTML = renderAcompanhamento(id); }
+
+function editEtapa(id, cod, val){
+  _acomp[id].etapas[cod] = { ...(_acomp[id].etapas[cod]||{}), perc: Math.max(0, Math.min(100, Math.round(+val||0))) };
+  salvarAcomp(id); refreshAcomp(id);
+}
+function toggleParcela(id, data, chk){
+  const cur = _acomp[id].parcelas[data] || {};
+  cur.pago = chk;
+  if (chk && !cur.dataReal) cur.dataReal = new Date().toISOString().slice(0,10);
+  _acomp[id].parcelas[data] = cur; salvarAcomp(id); refreshAcomp(id);
+}
+function editDataReal(id, data, val){
+  const cur = _acomp[id].parcelas[data] || {}; cur.dataReal = val;
+  _acomp[id].parcelas[data] = cur; salvarAcomp(id); refreshAcomp(id);
+}
+
+const ST_PARC = { ok:'No prazo', late:'Em atraso', wait:'A vencer' };
+const ST_META = { ok:'Alcançada', late:'Em atraso', wait:'Em andamento' };
+
+function renderAcompanhamento(id){
+  const p = PROJETOS[id], edit = podeEditarAcomp();
+  const fis = percFisico(id), fin = financeiro(id);
+  const metasOk = p.metas.filter(m => metaAlcancada(id, m)).length;
+
+  const kpis = `<div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-val">${fis}%</div><div class="kpi-label">Execução Física</div><div class="mini-prog"><i style="width:${fis}%"></i></div></div>
+    <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-val">${fin.perc}%</div><div class="kpi-label">Execução Financeira</div><div class="kpi-sub">${fmt(fin.receb)} recebidos</div></div>
+    <div class="kpi" style="border-left-color:var(--green2)"><div class="kpi-val">${metasOk}/${p.metas.length}</div><div class="kpi-label">Metas Alcançadas</div></div>
+    <div class="kpi" style="border-left-color:${fin.la ? 'var(--red)' : 'var(--gold)'}"><div class="kpi-val">${fin.la}</div><div class="kpi-label">Parcelas em Atraso</div><div class="kpi-sub">${fin.np} no prazo · ${fin.wa} a vencer</div></div>
+  </div>`;
+
+  const metas = p.metas.map(m => {
+    const stM = metaAlcancada(id, m) ? 'ok' : statusMeta(id, m);
+    const etapas = m.etapas.map(e => {
+      const pc = percEtapa(id, e.cod);
+      const ctrl = edit
+        ? `<input type="number" min="0" max="100" value="${pc}" class="acomp-num" onchange="editEtapa('${id}','${e.cod}',this.value)"> %`
+        : `<b>${pc}%</b>`;
+      return `<tr>
+        <td style="white-space:nowrap;color:var(--text3)">${e.cod}</td>
+        <td>${e.titulo}<div class="mini-prog"><i style="width:${pc}%"></i></div></td>
+        <td style="text-align:right;white-space:nowrap">${ctrl}</td>
+      </tr>`;
+    }).join('');
+    return `<div class="meta-block">
+      <div class="meta-head"><div class="mh-tit"><small>Meta ${m.n}</small>${m.titulo}</div>
+        <span class="st st-${stM}"><span class="st-dot"></span>${ST_META[stM]}</span></div>
+      <div class="table-wrap"><table><tbody>${etapas}</tbody></table></div>
+    </div>`;
+  }).join('');
+
+  const parc = p.cronograma.map((c,i) => {
+    const st = statusParcela(id, c), r = _acomp[id].parcelas[c.data] || {};
+    const chk = edit
+      ? `<input type="checkbox" ${r.pago?'checked':''} onchange="toggleParcela('${id}','${c.data}',this.checked)">`
+      : (r.pago ? '✅' : '—');
+    const dr = edit
+      ? `<input type="date" class="acomp-date" value="${r.dataReal||''}" onchange="editDataReal('${id}','${c.data}',this.value)">`
+      : isoParaBR(r.dataReal);
+    return `<tr>
+      <td style="color:var(--text3)">${i+1}ª</td>
+      <td>${c.data}</td>
+      <td style="text-align:right;white-space:nowrap">${fmt(c.valor)}</td>
+      <td style="text-align:center">${chk}</td>
+      <td>${dr}</td>
+      <td><span class="st st-${st}"><span class="st-dot"></span>${ST_PARC[st]}</span></td>
+    </tr>`;
+  }).join('');
+
+  const aviso = edit ? '' : `<div class="alert alert-info" style="margin-bottom:14px">🔒 Modo consulta. Para registrar a execução, entre com uma senha <b>master</b> ou como administrador.</div>`;
+
+  return `${aviso}${kpis}
+    <div class="card"><div class="card-title">Execução <span>Física — Metas &amp; Etapas</span></div>${metas}</div>
+    <div class="card"><div class="card-title">Execução <span>Financeira — Parcelas</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Parcela</th><th>Data Prevista</th><th style="text-align:right">Valor</th><th style="text-align:center">Recebida</th><th>Data Real</th><th>Status</th></tr></thead>
+        <tbody>${parc}</tbody>
+      </table></div>
+    </div>`;
+}
+
 // ─── SPLASH ────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   setTimeout(() => {
@@ -884,15 +1433,23 @@ window.addEventListener('load', () => {
 
 // ─── AUTH ──────────────────────────────────────────────────────
 auth.onAuthStateChanged(async user => {
-  if (user) {
+  if (user && !user.isAnonymous) {
+    // ── Admin (e-mail/senha): sistema completo + todos os projetos ──
     currentUser = user;
     await carregarPerfilUsuario(user.uid, user.email);
     document.getElementById('login-screen').classList.remove('show');
     document.getElementById('app').classList.add('show');
+    _masterOn = true;
+    document.querySelectorAll('.grp-sistema').forEach(g => g.style.display='');
+    document.getElementById('nav-geral').style.display='block';
+    document.getElementById('nav-projetos').style.display='block';
+    montarNavProjetos(Object.keys(PROJETOS));
     iniciarApp();
   } else {
-    document.getElementById('login-screen').classList.add('show');
-    document.getElementById('app').classList.remove('show');
+    // ── Portal (sem login): grava o acompanhamento direto no Firestore via regra pública ──
+    currentUser = null;
+    document.getElementById('login-screen').classList.remove('show');
+    iniciarPortal();
   }
 });
 
@@ -911,9 +1468,23 @@ async function fazerLogin() {
 }
 
 document.getElementById('login-senha').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+document.getElementById('msp-senha').addEventListener('keydown', e => { if (e.key === 'Enter') confirmarSenhaProj(); });
 
 async function fazerLogout() {
-  if (confirm('Deseja sair do sistema?')) await auth.signOut();
+  if (currentUser) { // sessão admin Firebase
+    if (!confirm('Deseja sair do sistema?')) return;
+    await auth.signOut();
+    location.reload();
+    return;
+  }
+  // portal: bloqueia novamente todos os projetos
+  if (!confirm('Bloquear o acesso aos projetos?')) return;
+  _unlocked = new Set();
+  _masterOn = false;
+  document.getElementById('sidebar-user-name').textContent = 'Portal ACB';
+  document.getElementById('sidebar-user-role').textContent = 'Gestão de Projetos';
+  montarNavProjetos(Object.keys(PROJETOS));
+  mostrarBoasVindas();
 }
 
 async function carregarPerfilUsuario(uid, email) {
