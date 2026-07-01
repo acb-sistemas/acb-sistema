@@ -1222,69 +1222,66 @@ const PROJETOS = {
     metaFisica:805, unidade:'estruturas (cisternas, ampliações e reparos)',
     valorGlobal:0,
     publico:'Famílias rurais em situação de vulnerabilidade nos municípios de Penaforte, Abaiara e Jardim (CE), para acesso à água potável e produção via cisternas de placas, cisternas escolares, ampliações de telhado e reparos de cisternas existentes.',
+    // seedEtapas: % já realizado (REALIZADO/META da planilha-fonte) — carregado como valor
+    // inicial do acompanhamento na 1ª vez que o projeto é aberto (ver carregarAcomp()).
+    seedEtapas:{
+      '1.1':100, '1.2':0, '1.3':100, '1.4':72, '1.5':0, '1.6':22, '1.7':12,
+      '2.1':0, '2.2':0, '2.3':0, '2.4':0, '2.5':0, '2.6':0, '2.7':0,
+      '3.1':42, '3.2':32, '3.3':0, '3.4':0,
+      '4.1':50, '4.2':0, '4.3':0, '4.4':0,
+      '5.1':0, '5.2':0, '5.3':0, '5.4':0, '5.5':0,
+      '6.1':0, '6.2':0, '6.3':0, '6.4':0,
+      '7.1':0, '7.2':0, '7.3':0, '7.4':0,
+    },
     metas:[
       { n:1, titulo:'Cisternas de 16 Mil Litros', valor:0, etapas:[
-        { cod:'1.1', titulo:'Atividades', valor:0, itens:[
-          {cod:'1.1', desc:'Capacitação de Comissão Municipal', un:'UND', qtd:1, vTotal:0},
-          {cod:'1.2', desc:'Encontro Microrregional', un:'UND', qtd:1, vTotal:0},
-          {cod:'1.3', desc:'Capacitação de Pedreiros (Cisternas 16 Mil L)', un:'UND', qtd:1, vTotal:0},
-          {cod:'1.4', desc:'Mobilização (Cisternas 16 Mil Litros)', un:'UND', qtd:720, vTotal:0},
-          {cod:'1.5', desc:'Capacitação GRH', un:'UND', qtd:720, vTotal:0},
-          {cod:'1.6', desc:'Construção de Cisternas 16 Mil Litros', un:'UND', qtd:720, vTotal:0},
-          {cod:'1.7', desc:'Termos de Recebimento', un:'UND', qtd:720, vTotal:0},
-        ]},
+        { cod:'1.1', titulo:'Capacitação de Comissão Municipal', valor:0, itens:[{cod:'1.1', desc:'Capacitação de Comissão Municipal', un:'UND', qtd:1, realizado:1, vTotal:0}]},
+        { cod:'1.2', titulo:'Encontro Microrregional', valor:0, itens:[{cod:'1.2', desc:'Encontro Microrregional', un:'UND', qtd:1, realizado:0, vTotal:0}]},
+        { cod:'1.3', titulo:'Capacitação de Pedreiros (Cisternas 16 Mil L)', valor:0, itens:[{cod:'1.3', desc:'Capacitação de Pedreiros (Cisternas 16 Mil L)', un:'UND', qtd:1, realizado:1, vTotal:0}]},
+        { cod:'1.4', titulo:'Mobilização (Cisternas 16 Mil Litros)', valor:0, itens:[{cod:'1.4', desc:'Mobilização (Cisternas 16 Mil Litros)', un:'UND', qtd:720, realizado:520, vTotal:0}]},
+        { cod:'1.5', titulo:'Capacitação GRH', valor:0, itens:[{cod:'1.5', desc:'Capacitação GRH', un:'UND', qtd:720, realizado:0, vTotal:0}]},
+        { cod:'1.6', titulo:'Construção de Cisternas 16 Mil Litros', valor:0, itens:[{cod:'1.6', desc:'Construção de Cisternas 16 Mil Litros', un:'UND', qtd:720, realizado:160, vTotal:0}]},
+        { cod:'1.7', titulo:'Termos de Recebimento', valor:0, itens:[{cod:'1.7', desc:'Termos de Recebimento', un:'UND', qtd:720, realizado:89, vTotal:0}]},
       ]},
       { n:2, titulo:'Cisternas Escolares de 52 Mil Litros', valor:0, etapas:[
-        { cod:'2.1', titulo:'Atividades', valor:0, itens:[
-          {cod:'2.1', desc:'Encontro Territorial', un:'UND', qtd:1, vTotal:0},
-          {cod:'2.2', desc:'Encontro Local', un:'UND', qtd:4, vTotal:0},
-          {cod:'2.3', desc:'Mobilização Escolas', un:'UND', qtd:4, vTotal:0},
-          {cod:'2.4', desc:'GRHE', un:'UND', qtd:1, vTotal:0},
-          {cod:'2.5', desc:'Oficinas de Educação Contextualizadas (Módulos)', un:'UND', qtd:3, vTotal:0},
-          {cod:'2.6', desc:'Construção de Cisternas Escolares 52 Mil Litros', un:'UND', qtd:4, vTotal:0},
-          {cod:'2.7', desc:'Termos de Recebimento', un:'UND', qtd:4, vTotal:0},
-        ]},
+        { cod:'2.1', titulo:'Encontro Territorial', valor:0, itens:[{cod:'2.1', desc:'Encontro Territorial', un:'UND', qtd:1, realizado:0, vTotal:0}]},
+        { cod:'2.2', titulo:'Encontro Local', valor:0, itens:[{cod:'2.2', desc:'Encontro Local', un:'UND', qtd:4, realizado:0, vTotal:0}]},
+        { cod:'2.3', titulo:'Mobilização Escolas', valor:0, itens:[{cod:'2.3', desc:'Mobilização Escolas', un:'UND', qtd:4, realizado:0, vTotal:0}]},
+        { cod:'2.4', titulo:'GRHE', valor:0, itens:[{cod:'2.4', desc:'GRHE', un:'UND', qtd:1, realizado:0, vTotal:0}]},
+        { cod:'2.5', titulo:'Oficinas de Educação Contextualizadas (Módulos)', valor:0, itens:[{cod:'2.5', desc:'Oficinas de Educação Contextualizadas (Módulos)', un:'UND', qtd:3, realizado:0, vTotal:0}]},
+        { cod:'2.6', titulo:'Construção de Cisternas Escolares 52 Mil Litros', valor:0, itens:[{cod:'2.6', desc:'Construção de Cisternas Escolares 52 Mil Litros', un:'UND', qtd:4, realizado:0, vTotal:0}]},
+        { cod:'2.7', titulo:'Termos de Recebimento', valor:0, itens:[{cod:'2.7', desc:'Termos de Recebimento', un:'UND', qtd:4, realizado:0, vTotal:0}]},
       ]},
       { n:3, titulo:'Cisternas com Ampliação de Telhado 20m²', valor:0, etapas:[
-        { cod:'3.1', titulo:'Atividades', valor:0, itens:[
-          {cod:'3.1', desc:'Mobilização — Ampliação 20m²', un:'UND', qtd:31, vTotal:0},
-          {cod:'3.2', desc:'GRH', un:'UND', qtd:31, vTotal:0},
-          {cod:'3.3', desc:'Cisternas — Telhados 20m²', un:'UND', qtd:31, vTotal:0},
-          {cod:'3.4', desc:'Termos de Recebimento', un:'UND', qtd:31, vTotal:0},
-        ]},
+        { cod:'3.1', titulo:'Mobilização — Ampliação 20m²', valor:0, itens:[{cod:'3.1', desc:'Mobilização — Ampliação 20m²', un:'UND', qtd:31, realizado:13, vTotal:0}]},
+        { cod:'3.2', titulo:'GRH', valor:0, itens:[{cod:'3.2', desc:'GRH', un:'UND', qtd:31, realizado:10, vTotal:0}]},
+        { cod:'3.3', titulo:'Cisternas — Telhados 20m²', valor:0, itens:[{cod:'3.3', desc:'Cisternas — Telhados 20m²', un:'UND', qtd:31, realizado:0, vTotal:0}]},
+        { cod:'3.4', titulo:'Termos de Recebimento', valor:0, itens:[{cod:'3.4', desc:'Termos de Recebimento', un:'UND', qtd:31, realizado:0, vTotal:0}]},
       ]},
       { n:4, titulo:'Cisternas com Ampliação de Telhado 40m²', valor:0, etapas:[
-        { cod:'4.1', titulo:'Atividades', valor:0, itens:[
-          {cod:'4.1', desc:'Mobilização — Ampliação 40m²', un:'UND', qtd:8, vTotal:0},
-          {cod:'4.2', desc:'GRH', un:'UND', qtd:8, vTotal:0},
-          {cod:'4.3', desc:'Cisternas — Telhados 40m²', un:'UND', qtd:8, vTotal:0},
-          {cod:'4.4', desc:'Termos de Recebimento', un:'UND', qtd:8, vTotal:0},
-        ]},
+        { cod:'4.1', titulo:'Mobilização — Ampliação 40m²', valor:0, itens:[{cod:'4.1', desc:'Mobilização — Ampliação 40m²', un:'UND', qtd:8, realizado:4, vTotal:0}]},
+        { cod:'4.2', titulo:'GRH', valor:0, itens:[{cod:'4.2', desc:'GRH', un:'UND', qtd:8, realizado:0, vTotal:0}]},
+        { cod:'4.3', titulo:'Cisternas — Telhados 40m²', valor:0, itens:[{cod:'4.3', desc:'Cisternas — Telhados 40m²', un:'UND', qtd:8, realizado:0, vTotal:0}]},
+        { cod:'4.4', titulo:'Termos de Recebimento', valor:0, itens:[{cod:'4.4', desc:'Termos de Recebimento', un:'UND', qtd:8, realizado:0, vTotal:0}]},
       ]},
       { n:5, titulo:'Reparo de Cisternas — Parede', valor:0, etapas:[
-        { cod:'5.1', titulo:'Atividades', valor:0, itens:[
-          {cod:'5.1', desc:'Capacitação de Pedreiros (Reparo de Paredes/Piso/Teto)', un:'UND', qtd:1, vTotal:0},
-          {cod:'5.2', desc:'Mobilização — Reparo de Paredes', un:'UND', qtd:21, vTotal:0},
-          {cod:'5.3', desc:'GRH', un:'UND', qtd:21, vTotal:0},
-          {cod:'5.4', desc:'Reparo de Paredes', un:'UND', qtd:21, vTotal:0},
-          {cod:'5.5', desc:'Termos de Recebimento', un:'UND', qtd:21, vTotal:0},
-        ]},
+        { cod:'5.1', titulo:'Capacitação de Pedreiros (Reparo de Paredes/Piso/Teto)', valor:0, itens:[{cod:'5.1', desc:'Capacitação de Pedreiros (Reparo de Paredes/Piso/Teto)', un:'UND', qtd:1, realizado:0, vTotal:0}]},
+        { cod:'5.2', titulo:'Mobilização — Reparo de Paredes', valor:0, itens:[{cod:'5.2', desc:'Mobilização — Reparo de Paredes', un:'UND', qtd:21, realizado:0, vTotal:0}]},
+        { cod:'5.3', titulo:'GRH', valor:0, itens:[{cod:'5.3', desc:'GRH', un:'UND', qtd:21, realizado:0, vTotal:0}]},
+        { cod:'5.4', titulo:'Reparo de Paredes', valor:0, itens:[{cod:'5.4', desc:'Reparo de Paredes', un:'UND', qtd:21, realizado:0, vTotal:0}]},
+        { cod:'5.5', titulo:'Termos de Recebimento', valor:0, itens:[{cod:'5.5', desc:'Termos de Recebimento', un:'UND', qtd:21, realizado:0, vTotal:0}]},
       ]},
       { n:6, titulo:'Reparo de Cisternas — Pisos', valor:0, etapas:[
-        { cod:'6.1', titulo:'Atividades', valor:0, itens:[
-          {cod:'6.1', desc:'Mobilização — Reparo de Pisos', un:'UND', qtd:13, vTotal:0},
-          {cod:'6.2', desc:'GRH', un:'UND', qtd:13, vTotal:0},
-          {cod:'6.3', desc:'Reparo de Pisos', un:'UND', qtd:13, vTotal:0},
-          {cod:'6.4', desc:'Termos de Recebimento', un:'UND', qtd:13, vTotal:0},
-        ]},
+        { cod:'6.1', titulo:'Mobilização — Reparo de Pisos', valor:0, itens:[{cod:'6.1', desc:'Mobilização — Reparo de Pisos', un:'UND', qtd:13, realizado:0, vTotal:0}]},
+        { cod:'6.2', titulo:'GRH', valor:0, itens:[{cod:'6.2', desc:'GRH', un:'UND', qtd:13, realizado:0, vTotal:0}]},
+        { cod:'6.3', titulo:'Reparo de Pisos', valor:0, itens:[{cod:'6.3', desc:'Reparo de Pisos', un:'UND', qtd:13, realizado:0, vTotal:0}]},
+        { cod:'6.4', titulo:'Termos de Recebimento', valor:0, itens:[{cod:'6.4', desc:'Termos de Recebimento', un:'UND', qtd:13, realizado:0, vTotal:0}]},
       ]},
       { n:7, titulo:'Reparo de Cisternas — Cobertura', valor:0, etapas:[
-        { cod:'7.1', titulo:'Atividades', valor:0, itens:[
-          {cod:'7.1', desc:'Mobilização — Reparo de Cobertura', un:'UND', qtd:8, vTotal:0},
-          {cod:'7.2', desc:'GRH', un:'UND', qtd:8, vTotal:0},
-          {cod:'7.3', desc:'Reparo de Cobertura', un:'UND', qtd:8, vTotal:0},
-          {cod:'7.4', desc:'Termos de Recebimento', un:'UND', qtd:8, vTotal:0},
-        ]},
+        { cod:'7.1', titulo:'Mobilização — Reparo de Cobertura', valor:0, itens:[{cod:'7.1', desc:'Mobilização — Reparo de Cobertura', un:'UND', qtd:8, realizado:0, vTotal:0}]},
+        { cod:'7.2', titulo:'GRH', valor:0, itens:[{cod:'7.2', desc:'GRH', un:'UND', qtd:8, realizado:0, vTotal:0}]},
+        { cod:'7.3', titulo:'Reparo de Cobertura', valor:0, itens:[{cod:'7.3', desc:'Reparo de Cobertura', un:'UND', qtd:8, realizado:0, vTotal:0}]},
+        { cod:'7.4', titulo:'Termos de Recebimento', valor:0, itens:[{cod:'7.4', desc:'Termos de Recebimento', un:'UND', qtd:8, realizado:0, vTotal:0}]},
       ]},
     ]
   },
@@ -1627,6 +1624,10 @@ async function carregarAcomp(id){
   if (!data) { const ls = localStorage.getItem('acomp_'+id); if (ls) data = JSON.parse(ls); }
   _acomp[id] = data || {};
   _acomp[id].etapas = _acomp[id].etapas || {};
+  // 1ª abertura (sem dado salvo): usa seedEtapas do plano como % inicial (ex: execução já realizada antes do app)
+  if (!Object.keys(_acomp[id].etapas).length && PROJETOS[id].seedEtapas) {
+    Object.entries(PROJETOS[id].seedEtapas).forEach(([cod,perc]) => { _acomp[id].etapas[cod] = { perc }; });
+  }
   _acomp[id].parcelas = _acomp[id].parcelas || {};
   _acomp[id].info = _acomp[id].info || {};
   _acomp[id].cronograma = _acomp[id].cronograma || [];
