@@ -1107,6 +1107,27 @@ const PROJETOS = {
       ]},
     ]
   },
+
+  'mulheres-cultivando-vidas': {
+    id:'mulheres-cultivando-vidas', nome:'Mulheres Cultivando Vidas', icone:'🌱', senha:'mulheres@2026',
+    objeto:'Estruturação de quintais produtivos com 20 mulheres beneficiárias — seleção, diagnósticos participativos, planos de estruturação dos quintais (PEQPs), cursos e acompanhamento.',
+    concedente:'Termo de Fomento',
+    periodoIni:'24/11/2025', periodoFim:'24/11/2026',
+    metaFisica:20, unidade:'mulheres beneficiárias',
+    valorGlobal:200000.00,
+    publico:'20 mulheres em situação de vulnerabilidade, para estruturação de quintais produtivos.',
+    metas:[
+      { n:1, titulo:'META 01 — Celebração do termo de fomento, contratação e capacitação da equipe', valor:2151.00, dataIni:'24/11/2025', dataFim:'24/11/2026' },
+      { n:2, titulo:'META 02 — Lançamento do projeto, seleção e cadastramento de 20 mulheres beneficiárias', valor:4722.80, dataIni:'24/11/2025', dataFim:'24/11/2026' },
+      { n:3, titulo:'META 03 — Realizar 20 diagnósticos participativos iniciais', valor:829.92, dataIni:'24/11/2025', dataFim:'24/11/2026' },
+      { n:4, titulo:'META 04 — Elaborar 20 planos de estruturação dos quintais produtivos (PEQPs)', valor:1500.00, dataIni:'24/11/2025', dataFim:'24/11/2026' },
+      { n:5, titulo:'META 05 — Implementar 20 planos de estruturação dos quintais produtivos (PEQPs)', valor:1200.00, dataIni:'24/11/2025', dataFim:'24/11/2026' },
+      { n:6, titulo:'META 06 — Realizar cursos para as 20 mulheres do projeto', valor:14600.28, dataIni:'24/11/2025', dataFim:'24/11/2026' },
+      { n:7, titulo:'META 07 — Acompanhamento na implementação das estruturas de melhoria dos quintais das 20 mulheres', valor:169330.00, dataIni:'24/11/2025', dataFim:'24/11/2026' },
+      { n:8, titulo:'META 08 — Aplicar o diagnóstico participativo final (DPF) para as 20 mulheres', valor:1500.00, dataIni:'24/11/2025', dataFim:'24/11/2026' },
+      { n:9, titulo:'META 09 — Avaliação das ações, prestação de contas e encerramento do projeto', valor:4166.00, dataIni:'24/11/2025', dataFim:'24/11/2026' },
+    ]
+  },
 };
 
 // ── Portal: layout tipo sistema, senha ao clicar no projeto ──
@@ -1306,6 +1327,10 @@ function renderProjeto(id){
 
   // Tabela de metas/etapas/itens
   const metasHtml = p.metas.map(m => {
+    if (!temEtapas(m)) {  // meta simples (sem etapas)
+      const per = (m.dataIni ? `<div class="etapa-tit"><span>Período</span><span>${m.dataIni}${m.dataFim?' a '+m.dataFim:''}</span></div>` : '');
+      return `<div class="meta-block"><div class="meta-head"><div class="mh-tit"><small>Meta ${m.n}</small>${m.titulo}</div><div class="mh-val">${fmt(m.valor)}</div></div>${per}</div>`;
+    }
     const etapas = m.etapas.map(e => {
       const itens = e.itens.map(it => `<tr>
         <td style="white-space:nowrap;color:var(--text3)">${it.cod||''}</td>
@@ -1445,6 +1470,7 @@ async function carregarAcomp(id){
   _acomp[id].parcelas = _acomp[id].parcelas || {};
   _acomp[id].info = _acomp[id].info || {};
   _acomp[id].cronograma = _acomp[id].cronograma || [];
+  _acomp[id].metasPerc = _acomp[id].metasPerc || {};
 }
 
 // Cronograma: fixo do plano (Ceará) OU editável (cisternas etc.)
@@ -1472,7 +1498,25 @@ async function salvarAcomp(id){
 }
 
 function percEtapa(id, cod){ return Math.max(0, Math.min(100, _acomp[id].etapas[cod]?.perc || 0)); }
-function metaAlcancada(id, m){ return m.etapas.every(e => percEtapa(id, e.cod) >= 100); }
+function temEtapas(m){ return m.etapas && m.etapas.length; }
+
+// % de uma meta: por etapas (ponderado por valor) OU direto (metas simples)
+function percMeta(id, m){
+  if (temEtapas(m)) {
+    const tot = m.etapas.reduce((s,e) => s + e.valor, 0);
+    return tot ? Math.round(m.etapas.reduce((s,e) => s + e.valor * percEtapa(id, e.cod) / 100, 0) / tot * 100) : 0;
+  }
+  return Math.max(0, Math.min(100, (_acomp[id].metasPerc && +_acomp[id].metasPerc[m.n]) || 0));
+}
+function metaAlcancada(id, m){
+  if (temEtapas(m)) return m.etapas.every(e => percEtapa(id, e.cod) >= 100);
+  return percMeta(id, m) >= 100;
+}
+function editMetaPerc(id, n, val){
+  _acomp[id].metasPerc = _acomp[id].metasPerc || {};
+  _acomp[id].metasPerc[n] = Math.max(0, Math.min(100, Math.round(+val||0)));
+  salvarAcomp(id); refreshAcomp(id);
+}
 
 function statusMeta(id, m){
   if (metaAlcancada(id, m)) return 'ok';
@@ -1482,15 +1526,18 @@ function statusMeta(id, m){
   if (!okD(dIni) || !okD(dFim)) return 'wait'; // sem período definido → sem cálculo de prazo
   const ini = parseBR(dIni), fim = parseBR(dFim), h = hojeD();
   const esp = h <= ini ? 0 : h >= fim ? 100 : (h - ini) / (fim - ini) * 100;
-  const tot = m.etapas.reduce((s,e) => s + e.valor, 0);
-  const real = m.etapas.reduce((s,e) => s + e.valor * percEtapa(id, e.cod) / 100, 0) / tot * 100;
-  return real + 5 < esp ? 'late' : 'wait';
+  return percMeta(id, m) + 5 < esp ? 'late' : 'wait';
 }
 
 function percFisico(id){
-  const p = PROJETOS[id]; let tot = 0, acc = 0;
-  p.metas.forEach(m => m.etapas.forEach(e => { tot += e.valor; acc += e.valor * percEtapa(id, e.cod) / 100; }));
-  return tot ? Math.round(acc / tot * 100) : 0;
+  const p = PROJETOS[id];
+  const comEtapas = p.metas.some(temEtapas);
+  if (comEtapas) {
+    let tot = 0, acc = 0;
+    p.metas.forEach(m => (m.etapas||[]).forEach(e => { tot += e.valor; acc += e.valor * percEtapa(id, e.cod) / 100; }));
+    return tot ? Math.round(acc / tot * 100) : 0;
+  }
+  return p.metas.length ? Math.round(p.metas.reduce((s,m) => s + percMeta(id, m), 0) / p.metas.length) : 0;
 }
 
 function statusParcela(id, c){
@@ -1610,21 +1657,31 @@ function renderAcompanhamento(id){
 
   const metas = p.metas.map(m => {
     const stM = metaAlcancada(id, m) ? 'ok' : statusMeta(id, m);
-    const etapas = m.etapas.map(e => {
-      const pc = percEtapa(id, e.cod);
+    let corpo;
+    if (temEtapas(m)) {
+      const etapas = m.etapas.map(e => {
+        const pc = percEtapa(id, e.cod);
+        const ctrl = edit
+          ? `<input type="number" min="0" max="100" value="${pc}" class="acomp-num" onchange="editEtapa('${id}','${e.cod}',this.value)"> %`
+          : `<b>${pc}%</b>`;
+        return `<tr>
+          <td style="white-space:nowrap;color:var(--text3)">${e.cod}</td>
+          <td>${e.titulo}<div class="mini-prog"><i style="width:${pc}%"></i></div></td>
+          <td style="text-align:right;white-space:nowrap">${ctrl}</td>
+        </tr>`;
+      }).join('');
+      corpo = `<div class="table-wrap"><table><tbody>${etapas}</tbody></table></div>`;
+    } else {  // meta simples → progresso da meta inteira
+      const pc = percMeta(id, m);
       const ctrl = edit
-        ? `<input type="number" min="0" max="100" value="${pc}" class="acomp-num" onchange="editEtapa('${id}','${e.cod}',this.value)"> %`
+        ? `<input type="number" min="0" max="100" value="${pc}" class="acomp-num" onchange="editMetaPerc('${id}',${m.n},this.value)"> %`
         : `<b>${pc}%</b>`;
-      return `<tr>
-        <td style="white-space:nowrap;color:var(--text3)">${e.cod}</td>
-        <td>${e.titulo}<div class="mini-prog"><i style="width:${pc}%"></i></div></td>
-        <td style="text-align:right;white-space:nowrap">${ctrl}</td>
-      </tr>`;
-    }).join('');
+      corpo = `<div style="padding:12px 16px"><div class="gauge-top"><span>Progresso da meta</span>${ctrl}</div><div class="gauge-bar"><i style="width:${pc}%;background:linear-gradient(90deg,var(--green),var(--green2))"></i></div></div>`;
+    }
     return `<div class="meta-block">
       <div class="meta-head"><div class="mh-tit"><small>Meta ${m.n}</small>${m.titulo}</div>
         <span class="st st-${stM}"><span class="st-dot"></span>${ST_META[stM]}</span></div>
-      <div class="table-wrap"><table><tbody>${etapas}</tbody></table></div>
+      ${corpo}
     </div>`;
   }).join('');
 
