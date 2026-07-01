@@ -78,6 +78,17 @@
 .mini-prog{height:7px;background:#e8f5ed;border-radius:6px;overflow:hidden;margin-top:5px;max-width:280px}
 .mini-prog>i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--green2))}
 .acomp-num{width:64px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center}
+.gauge{margin-bottom:15px}
+.gauge:last-child{margin-bottom:0}
+.gauge-top{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:5px}
+.gauge-top b{font-size:15px;color:var(--dark)}
+.gauge-bar{height:13px;background:#eef2f0;border-radius:8px;overflow:hidden}
+.gauge-bar>i{display:block;height:100%;border-radius:8px;transition:width .5s}
+.verdict{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:10px;font-weight:700;font-size:14px;margin-top:4px}
+.verdict-ok{background:#dcfce7;color:#166534}
+.verdict-late{background:#fee2e2;color:#991b1b}
+.verdict-wait{background:#fef9c3;color:#854d0e}
+.verdict .big{font-size:22px}
 .acomp-date{padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:#fff}
 
 /* APP */
@@ -1377,7 +1388,7 @@ function renderProjeto(id){
       <div class="page-tab active" onclick="projTab(this,'pt-geral')">Visão Geral</div>
       <div class="page-tab" onclick="projTab(this,'pt-metas')">Metas & Despesas</div>
       <div class="page-tab" onclick="projTab(this,'pt-cron')">Cronograma de Desembolso</div>
-      <div class="page-tab" onclick="projTab(this,'pt-acomp')">📊 Acompanhamento</div>
+      <div class="page-tab" onclick="projTab(this,'pt-acomp')">📊 Dashboard</div>
     </div>
 
     <div id="pt-geral" class="proj-sec">
@@ -1502,6 +1513,22 @@ function financeiro(id){
 
 function refreshAcomp(id){ const s = document.getElementById('pt-acomp'); if (s) s.innerHTML = renderAcompanhamento(id); }
 
+// Prazo: usa período (fixo ou preenchido)
+function prazoInfo(id){
+  const p = PROJETOS[id], inf = (_acomp[id] && _acomp[id].info) || {};
+  const dIni = inf.periodoIni || p.periodoIni, dFim = inf.periodoFim || p.periodoFim;
+  const okD = s => s && /^\d{2}\/\d{2}\/\d{4}$/.test(s);
+  if (!okD(dIni) || !okD(dFim)) return null;
+  const ini = parseBR(dIni), fim = parseBR(dFim), h = hojeD(), DIA = 86400000;
+  const total = (fim - ini) / DIA;
+  const tempoPerc = total > 0 ? Math.max(0, Math.min(100, Math.round((h - ini) / DIA / total * 100))) : 0;
+  const diasRest = Math.round((fim - h) / DIA);
+  return { ini: dIni, fim: dFim, tempoPerc, diasRest, encerrado: h > fim };
+}
+// Meta física realizada (ex: nº de cisternas construídas)
+function metaRealizada(id){ return Math.max(0, (_acomp[id] && _acomp[id].info && +_acomp[id].info.metaRealizada) || 0); }
+function editMetaReal(id, val){ _acomp[id].info = _acomp[id].info || {}; _acomp[id].info.metaRealizada = Math.max(0, Math.round(+val||0)); salvarAcomp(id); refreshAcomp(id); }
+
 function editEtapa(id, cod, val){
   _acomp[id].etapas[cod] = { ...(_acomp[id].etapas[cod]||{}), perc: Math.max(0, Math.min(100, Math.round(+val||0))) };
   salvarAcomp(id); refreshAcomp(id);
@@ -1525,12 +1552,61 @@ function renderAcompanhamento(id){
   const fis = percFisico(id), fin = financeiro(id);
   const metasOk = p.metas.filter(m => metaAlcancada(id, m)).length;
 
+  const pr = prazoInfo(id);
+  let sit, sitLbl;
+  if (fis >= 100) { sit='ok'; sitLbl='Concluído'; }
+  else if (!pr) { sit='wait'; sitLbl='Sem período'; }
+  else if (fis >= pr.tempoPerc - 5) { sit='ok'; sitLbl='No prazo'; }
+  else { sit='late'; sitLbl='Atrasado'; }
+  const sitCor = sit==='late'?'var(--red)':sit==='ok'?'var(--green)':'var(--gold)';
+
   const kpis = `<div class="grid-4" style="margin-bottom:16px">
     <div class="kpi"><div class="kpi-val">${fis}%</div><div class="kpi-label">Execução Física</div><div class="mini-prog"><i style="width:${fis}%"></i></div></div>
     <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-val">${fin.perc}%</div><div class="kpi-label">Execução Financeira</div><div class="kpi-sub">${fmt(fin.receb)} recebidos</div></div>
     <div class="kpi" style="border-left-color:var(--green2)"><div class="kpi-val">${metasOk}/${p.metas.length}</div><div class="kpi-label">Metas Alcançadas</div></div>
-    <div class="kpi" style="border-left-color:${fin.la ? 'var(--red)' : 'var(--gold)'}"><div class="kpi-val">${fin.la}</div><div class="kpi-label">Parcelas em Atraso</div><div class="kpi-sub">${fin.np} no prazo · ${fin.wa} a vencer</div></div>
+    <div class="kpi" style="border-left-color:${sitCor}"><div class="kpi-val" style="font-size:20px;color:${sitCor}">${sitLbl}</div><div class="kpi-label">Situação</div>${pr?`<div class="kpi-sub">${pr.encerrado?'prazo encerrado':pr.diasRest+' dias restantes'}</div>`:''}</div>
   </div>`;
+
+  // Painel: Físico vs Financeiro vs Tempo + veredito
+  const gauge = (lbl, val, cor) => `<div class="gauge"><div class="gauge-top"><span>${lbl}</span><b>${val}%</b></div><div class="gauge-bar"><i style="width:${Math.min(100,val)}%;background:${cor}"></i></div></div>`;
+  const vCls = sit==='ok'?'verdict-ok':sit==='late'?'verdict-late':'verdict-wait';
+  const vIcon = sit==='ok'?'✅':sit==='late'?'⚠️':'⏳';
+  const vTxt = !pr ? 'Defina o período do projeto (aba Visão Geral) para avaliar o prazo.'
+    : (fis >= pr.tempoPerc ? 'A execução física está em dia com o tempo decorrido.' : 'A execução física está ' + (pr.tempoPerc - fis) + '% atrás do tempo decorrido.');
+  const painel = `<div class="grid-2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Progresso <span>vs. Tempo</span></div>
+      ${gauge('Execução Física', fis, 'linear-gradient(90deg,var(--green),var(--green2))')}
+      ${gauge('Execução Financeira', fin.perc, 'linear-gradient(90deg,#2563eb,#3b82f6)')}
+      ${gauge('Tempo Decorrido', pr?pr.tempoPerc:0, 'linear-gradient(90deg,#d97706,#f59e0b)')}
+      <div class="verdict ${vCls}"><span class="big">${vIcon}</span><div><b>${sitLbl}.</b> ${vTxt}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Prazo &amp; <span>Resumo</span></div>
+      <table><tbody>
+        <tr><td style="font-weight:700;width:52%">Início</td><td>${pr?pr.ini:'<span style="color:var(--text3)">a definir</span>'}</td></tr>
+        <tr><td style="font-weight:700">Término</td><td>${pr?pr.fim:'<span style="color:var(--text3)">a definir</span>'}</td></tr>
+        <tr><td style="font-weight:700">Dias restantes</td><td>${pr?(pr.encerrado?'Encerrado':pr.diasRest+' dias'):'—'}</td></tr>
+        <tr><td style="font-weight:700">Metas alcançadas</td><td>${metasOk} de ${p.metas.length}</td></tr>
+        <tr><td style="font-weight:700">Parcelas</td><td>${fin.np} no prazo · <span style="color:var(--red);font-weight:700">${fin.la} atraso</span> · ${fin.wa} a vencer</td></tr>
+      </tbody></table>
+    </div>
+  </div>`;
+
+  let metaFisicaCard = '';
+  if (p.metaFisica) {
+    const real = metaRealizada(id), pct = Math.round(real / p.metaFisica * 100);
+    const ctrl = edit
+      ? `<input type="number" min="0" max="${p.metaFisica}" value="${real}" class="acomp-num" style="width:90px" onchange="editMetaReal('${id}',this.value)">`
+      : `<b>${real}</b>`;
+    metaFisicaCard = `<div class="card"><div class="card-title">Meta <span>Física</span></div>
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+        <div><div style="font-size:30px;font-weight:800;color:var(--dark)">${ctrl} <span style="font-size:16px;color:var(--text3)">/ ${p.metaFisica}</span></div>
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">${p.unidade||''} realizadas</div></div>
+        <div style="flex:1;min-width:220px"><div class="gauge-top"><span>Progresso físico</span><b>${pct}%</b></div><div class="gauge-bar"><i style="width:${Math.min(100,pct)}%;background:linear-gradient(90deg,var(--green),var(--green2))"></i></div></div>
+      </div>
+    </div>`;
+  }
 
   const metas = p.metas.map(m => {
     const stM = metaAlcancada(id, m) ? 'ok' : statusMeta(id, m);
@@ -1573,7 +1649,7 @@ function renderAcompanhamento(id){
 
   const aviso = edit ? '' : `<div class="alert alert-info" style="margin-bottom:14px">👁️ Modo visualização. O registro da execução é feito pelo <b>responsável do projeto</b> (com a senha do projeto).</div>`;
 
-  return `${aviso}${kpis}
+  return `${aviso}${kpis}${painel}${metaFisicaCard}
     <div class="card"><div class="card-title">Execução <span>Física — Metas &amp; Etapas</span></div>${metas}</div>
     <div class="card"><div class="card-title">Execução <span>Financeira — Parcelas</span></div>
       <div class="table-wrap"><table>
