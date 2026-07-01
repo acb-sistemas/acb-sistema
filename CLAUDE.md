@@ -6,7 +6,7 @@ Sistema de gestão para ONG **Associação Cristã de Base (ACB)** — múltiplo
 **Desenvolvido por:** Falcioni Consultoria  
 **Cliente:** Associação Cristã de Base  
 **E-mail cliente:** acb.crato@gmail.com  
-**URL do app:** https://acb-sistema.netlify.app  
+**URL do app:** https://acbcrato-app.netlify.app  
 **Tecnologia:** PWA (HTML/CSS/JS single-file) + Firebase Firestore + Firebase Auth
 
 ---
