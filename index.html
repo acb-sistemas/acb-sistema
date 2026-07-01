@@ -1284,7 +1284,7 @@ function projTab(el, secId){
 // ─── ACOMPANHAMENTO (metas × prazos) ───────────────────────────
 let _acomp = {}; // {projId:{etapas:{cod:{perc}}, parcelas:{data:{pago,dataReal}}}}
 
-function podeEditarAcomp(){ return _masterOn || !!currentUser; }
+function podeEditarAcomp(id){ return _masterOn || !!currentUser || _unlocked.has(id); }
 function parseBR(s){ const [d,m,y] = s.split('/'); return new Date(+y, +m-1, +d); }
 function hojeD(){ const h = new Date(); h.setHours(0,0,0,0); return h; }
 function isoParaBR(s){ return s ? s.split('-').reverse().join('/') : '—'; }
@@ -1362,7 +1362,7 @@ const ST_PARC = { ok:'No prazo', late:'Em atraso', wait:'A vencer' };
 const ST_META = { ok:'Alcançada', late:'Em atraso', wait:'Em andamento' };
 
 function renderAcompanhamento(id){
-  const p = PROJETOS[id], edit = podeEditarAcomp();
+  const p = PROJETOS[id], edit = podeEditarAcomp(id);
   const fis = percFisico(id), fin = financeiro(id);
   const metasOk = p.metas.filter(m => metaAlcancada(id, m)).length;
 
