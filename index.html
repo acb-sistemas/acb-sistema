@@ -1499,7 +1499,7 @@ async function abrirGestaoGeral(){
 
 function renderGestaoGeral(){
   const ids = Object.keys(PROJETOS);
-  const totalGlobal = ids.reduce((s,id) => s + PROJETOS[id].valorGlobal, 0);
+  const totalGlobal = ids.reduce((s,id) => s + valorGlobalAtual(id), 0);
   let totalAtraso = 0, metasOk = 0, metasTot = 0;
   const rows = ids.map(id => {
     const p = PROJETOS[id], fin = financeiro(id), fis = percFisico(id);
@@ -1512,7 +1512,7 @@ function renderGestaoGeral(){
       <td style="text-align:center">${fis}%</td>
       <td style="text-align:center">${fin.perc}%</td>
       <td style="text-align:center">${ok}/${p.metas.length}</td>
-      <td style="text-align:right;font-weight:700;white-space:nowrap">${fmt(p.valorGlobal)}</td>
+      <td style="text-align:right;font-weight:700;white-space:nowrap">${fmt(valorGlobalAtual(id))}</td>
       <td><span class="st st-${st}"><span class="st-dot"></span>${stLbl}</span></td>
     </tr>`;
   }).join('');
@@ -1637,27 +1637,31 @@ function renderProjeto(id){
   tagArr.push(`<span class="proj-tag">📅 ${perTxt}</span>`);
   const tags = tagArr.join('');
 
+  const vgAtual = valorGlobalAtual(id);
   let kpiArr;
   if (p.parcelas) {
     kpiArr = [
-      `<div class="kpi"><div class="kpi-val">${fmt(p.valorGlobal)}</div><div class="kpi-label">Valor Global</div><div class="kpi-sub">${p.parcelas} parcelas</div></div>`,
+      `<div class="kpi"><div class="kpi-val">${fmt(vgAtual)}</div><div class="kpi-label">Valor Global</div><div class="kpi-sub">${p.parcelas} parcelas</div></div>`,
       `<div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-val">${fmt(p.repasseMensal)}</div><div class="kpi-label">Repasse Mensal</div><div class="kpi-sub">média/mês</div></div>`,
       `<div class="kpi" style="border-left-color:var(--gold)"><div class="kpi-val">${fmt(p.desemb2025)}</div><div class="kpi-label">Desembolso 2025</div></div>`,
       `<div class="kpi" style="border-left-color:var(--gold)"><div class="kpi-val">${fmt(p.desemb2026)}</div><div class="kpi-label">Desembolso 2026</div></div>`,
     ];
   } else {
-    kpiArr = [`<div class="kpi"><div class="kpi-val" style="font-size:23px">${fmt(p.valorGlobal)}</div><div class="kpi-label">Valor Global</div></div>`];
+    kpiArr = [`<div class="kpi"><div class="kpi-val" style="font-size:23px">${fmt(vgAtual)}</div><div class="kpi-label">Valor Global</div></div>`];
     if (p.metaFisica) kpiArr.push(`<div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-val">${p.metaFisica}</div><div class="kpi-label">Meta Física (${p.unidade||'un'})</div></div>`);
     kpiArr.push(`<div class="kpi" style="border-left-color:var(--gold)"><div class="kpi-val" style="font-size:20px">${fmt(p.metas[0].valor)}</div><div class="kpi-label">${p.metas[0].titulo}</div></div>`);
     kpiArr.push(`<div class="kpi" style="border-left-color:var(--green2)"><div class="kpi-val">${p.metas.length}</div><div class="kpi-label">Componentes</div></div>`);
   }
   const kpis = `<div class="grid-4" style="margin-bottom:16px">${kpiArr.slice(0,4).join('')}</div>`;
 
+  const edit = podeEditarAcomp(id);
+
   // Tabela de metas/etapas/itens
   const metasHtml = p.metas.map(m => {
+    const aditivoHtml = renderAditivo(id, m, edit);
     if (!temEtapas(m)) {  // meta simples (sem etapas)
       const per = (m.dataIni ? `<div class="etapa-tit"><span>Período</span><span>${m.dataIni}${m.dataFim?' a '+m.dataFim:''}</span></div>` : '');
-      return `<div class="meta-block"><div class="meta-head"><div class="mh-tit"><small>Meta ${m.n}</small>${m.titulo}</div><div class="mh-val">${fmt(m.valor)}</div></div>${per}</div>`;
+      return `<div class="meta-block"><div class="meta-head"><div class="mh-tit"><small>Meta ${m.n}</small>${m.titulo}</div><div class="mh-val">${fmt(valorMeta(id,m))}</div></div>${per}${aditivoHtml}</div>`;
     }
     const etapas = m.etapas.map(e => {
       const itens = e.itens.map(it => `<tr>
@@ -1675,12 +1679,11 @@ function renderProjeto(id){
         </table></div>`;
     }).join('');
     return `<div class="meta-block">
-      <div class="meta-head"><div class="mh-tit"><small>Meta ${m.n}</small>${m.titulo}</div><div class="mh-val">${fmt(m.valor)}</div></div>
+      <div class="meta-head"><div class="mh-tit"><small>Meta ${m.n}</small>${m.titulo}</div><div class="mh-val">${fmt(valorMeta(id,m))}</div></div>
+      ${aditivoHtml}
       ${etapas}
     </div>`;
   }).join('');
-
-  const edit = podeEditarAcomp(id);
 
   // ── Identificação (com campos editáveis) ──
   const inp = (campo, val, ph, w) => `<input class="acomp-date" style="width:${w||'160px'}" placeholder="${ph||''}" value="${val||''}" onchange="editInfo('${id}','${campo}',this.value)">`;
@@ -1695,12 +1698,13 @@ function renderProjeto(id){
   if (p.banco) idRows.push(`<tr><td style="font-weight:700">Dados Bancários</td><td>${p.banco}</td></tr>`);
 
   // ── Resumo financeiro ──
-  const finRows = [`<tr><td style="font-weight:700;width:55%">Valor Global</td><td style="text-align:right;font-weight:800;color:var(--green2)">${fmt(p.valorGlobal)}</td></tr>`];
+  const finRows = [`<tr><td style="font-weight:700;width:55%">Valor Global</td><td style="text-align:right;font-weight:800;color:var(--green2)">${fmt(vgAtual)}</td></tr>`];
+  if (somaAditivos(id)) finRows.push(`<tr><td style="font-weight:700">Aditivos (total)</td><td style="text-align:right">${fmt(somaAditivos(id))}</td></tr>`);
   if (p.repasse!=null) finRows.push(`<tr><td style="font-weight:700">Repasse (Concedente)</td><td style="text-align:right">${fmt(p.repasse)}</td></tr>`);
   if (p.contrapartida!=null) finRows.push(`<tr><td style="font-weight:700">Contrapartida</td><td style="text-align:right">${fmt(p.contrapartida)}</td></tr>`);
   if (p.custoSemISS!=null) finRows.push(`<tr><td style="font-weight:700">Custo sem ISS</td><td style="text-align:right">${fmt(p.custoSemISS)}</td></tr>`);
   if (p.iss!=null) finRows.push(`<tr><td style="font-weight:700">ISS</td><td style="text-align:right">${fmt(p.iss)}</td></tr>`);
-  p.metas.forEach(m => finRows.push(`<tr><td style="font-weight:700">Meta ${m.n} — ${m.titulo}</td><td style="text-align:right;white-space:nowrap">${fmt(m.valor)}</td></tr>`));
+  p.metas.forEach(m => finRows.push(`<tr><td style="font-weight:700">Meta ${m.n} — ${m.titulo}</td><td style="text-align:right;white-space:nowrap">${fmt(valorMeta(id,m))}</td></tr>`));
 
   // ── Cronograma de desembolso (fixo = só leitura; senão = editável) ──
   const cronArr = cronogramaDe(id), cronEdit = !p.cronograma;
@@ -1803,6 +1807,7 @@ async function carregarAcomp(id){
   _acomp[id].info = _acomp[id].info || {};
   _acomp[id].cronograma = _acomp[id].cronograma || [];
   _acomp[id].metasPerc = _acomp[id].metasPerc || {};
+  _acomp[id].aditivos = _acomp[id].aditivos || {};
 }
 
 // Cronograma: fixo do plano (Ceará) OU editável (cisternas etc.)
@@ -1888,8 +1893,38 @@ function financeiro(id){
     if (_acomp[id].parcelas[c.data]?.pago) receb += (+c.valor||0);
     if (st === 'ok') np++; else if (st === 'late') la++; else wa++;
   });
-  const vg = PROJETOS[id].valorGlobal || 0;
+  const vg = valorGlobalAtual(id);
   return { receb, perc: vg ? Math.round(receb / vg * 100) : 0, np, la, wa };
+}
+
+// ── Aditivos: valor extra por meta (soma ao valor original, entra no Valor Global e no % financeiro) ──
+function aditivoMeta(id, n){ return (_acomp[id] && _acomp[id].aditivos && _acomp[id].aditivos[n]) || null; }
+function valorMeta(id, m){ const ad = aditivoMeta(id, m.n); return m.valor + (ad ? (+ad.valor||0) : 0); }
+function somaAditivos(id){ const ads = (_acomp[id] && _acomp[id].aditivos) || {}; return Object.values(ads).reduce((s,a) => s + (+a.valor||0), 0); }
+function valorGlobalAtual(id){ return (PROJETOS[id].valorGlobal||0) + somaAditivos(id); }
+function editAditivo(id, n, campo, val){
+  _acomp[id].aditivos = _acomp[id].aditivos || {};
+  const cur = _acomp[id].aditivos[n] || { valor:0, desc:'' };
+  cur[campo] = campo === 'valor' ? (parseFloat(String(val).replace(/\./g,'').replace(',','.'))||0) : val;
+  if (!cur.valor && !cur.desc) delete _acomp[id].aditivos[n];
+  else _acomp[id].aditivos[n] = cur;
+  salvarAcomp(id);
+}
+function renderAditivo(id, m, edit){
+  const ad = aditivoMeta(id, m.n);
+  if (edit) {
+    return `<div class="etapa-tit" style="flex-wrap:wrap;gap:8px">
+      <span>➕ Aditivo (opcional)</span>
+      <span style="display:flex;gap:6px;flex-wrap:wrap">
+        <input class="acomp-num" style="width:110px;text-align:right" placeholder="0,00" value="${ad&&ad.valor?ad.valor:''}" onchange="editAditivo('${id}',${m.n},'valor',this.value)">
+        <input class="acomp-date" style="width:220px" placeholder="Descrição (ex: Aditivo nº 01/2026)" value="${ad?ad.desc||'':''}" onchange="editAditivo('${id}',${m.n},'desc',this.value)">
+      </span>
+    </div>`;
+  }
+  if (ad && (ad.valor || ad.desc)) {
+    return `<div class="etapa-tit"><span>➕ Aditivo${ad.desc?' — '+ad.desc:''}</span><span style="color:var(--green2)">${fmt(ad.valor)}</span></div>`;
+  }
+  return '';
 }
 
 function refreshAcomp(id){ const s = document.getElementById('pt-acomp'); if (s) s.innerHTML = renderAcompanhamento(id); }
