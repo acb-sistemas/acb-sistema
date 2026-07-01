@@ -1284,7 +1284,8 @@ function projTab(el, secId){
 // ─── ACOMPANHAMENTO (metas × prazos) ───────────────────────────
 let _acomp = {}; // {projId:{etapas:{cod:{perc}}, parcelas:{data:{pago,dataReal}}}}
 
-function podeEditarAcomp(id){ return _masterOn || !!currentUser || _unlocked.has(id); }
+// Edita: responsável (senha do projeto) ou admin. Master = só visualização.
+function podeEditarAcomp(id){ return !!currentUser || _unlocked.has(id); }
 function parseBR(s){ const [d,m,y] = s.split('/'); return new Date(+y, +m-1, +d); }
 function hojeD(){ const h = new Date(); h.setHours(0,0,0,0); return h; }
 function isoParaBR(s){ return s ? s.split('-').reverse().join('/') : '—'; }
@@ -1411,7 +1412,7 @@ function renderAcompanhamento(id){
     </tr>`;
   }).join('');
 
-  const aviso = edit ? '' : `<div class="alert alert-info" style="margin-bottom:14px">🔒 Modo consulta. Para registrar a execução, entre com uma senha <b>master</b> ou como administrador.</div>`;
+  const aviso = edit ? '' : `<div class="alert alert-info" style="margin-bottom:14px">👁️ Modo visualização. O registro da execução é feito pelo <b>responsável do projeto</b> (com a senha do projeto).</div>`;
 
   return `${aviso}${kpis}
     <div class="card"><div class="card-title">Execução <span>Física — Metas &amp; Etapas</span></div>${metas}</div>
