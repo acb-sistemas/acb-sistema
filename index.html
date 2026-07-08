@@ -1140,14 +1140,14 @@ const PROJETOS = {
     valorGlobal:3916306.37,
     publico:'Agricultores(as) familiares do semiárido dos municípios de São Francisco do Maranhão e Barão de Grajaú (MA), para acesso à água de produção com cisternas calçadão, cisternas de enxurrada e casas de sementes com cisternas comunitárias.',
     metas:[
-      { n:1, titulo:'Seleção e Cadastramento de Famílias', valor:7976.80, etapas:[
+      { n:1, titulo:'Seleção e Cadastramento de Famílias', valor:7976.80, pctInput:true, etapas:[
         { cod:'1.1', titulo:'Seleção e Cadastramento', valor:7976.80, itens:[
           {cod:'1.1', desc:'Cisternas Calçadão com Safisp', un:'UND', qtd:118, vUnit:33.80, vTotal:3988.40},
           {cod:'1.2', desc:'Cisternas Enxurrada com Safisp', un:'UND', qtd:18, vUnit:33.80, vTotal:608.40},
           {cod:'1.3', desc:'Cisterna Comunitária p/ Manejo do Agrobio', un:'UND', qtd:100, vUnit:33.80, vTotal:3380.00},
         ]},
       ]},
-      { n:2, titulo:'Capacitação', valor:169714.00, etapas:[
+      { n:2, titulo:'Capacitação', valor:169714.00, pctInput:true, etapas:[
         { cod:'2.1', titulo:'Capacitações', valor:169714.00, itens:[
           {cod:'2.1', desc:'Gestão da Água p/ Produção de Alimentos — GAPA', un:'UND', qtd:136, vUnit:300.00, vTotal:40800.00},
           {cod:'2.2', desc:'Manejo de Sistema Simplificado de Água p/ Produção — SISMA', un:'UND', qtd:136, vUnit:424.00, vTotal:57664.00},
@@ -1158,12 +1158,12 @@ const PROJETOS = {
           {cod:'2.7', desc:'Seleção, Produção e Multiplicação de Sementes', un:'UND', qtd:2, vUnit:4880.00, vTotal:9760.00},
         ]},
       ]},
-      { n:3, titulo:'Visita de Intercâmbio entre Agricultores', valor:67732.00, etapas:[
+      { n:3, titulo:'Visita de Intercâmbio entre Agricultores', valor:67732.00, pctInput:true, etapas:[
         { cod:'3.1', titulo:'Visitas p/ Multiplicação de Experiências', valor:67732.00, itens:[
           {cod:'3.1', desc:'Visitas Intermunicipais entre Agricultores Familiares', un:'UND', qtd:236, vUnit:287.00, vTotal:67732.00},
         ]},
       ]},
-      { n:4, titulo:'Produção Agroecológica', valor:47600.00, etapas:[
+      { n:4, titulo:'Produção Agroecológica', valor:47600.00, pctInput:true, etapas:[
         { cod:'4.1', titulo:'Diagnóstico e Projetos Produtivos', valor:47600.00, itens:[
           {cod:'4.1', desc:'Diagnóstico de Agroecosistemas', un:'UND', qtd:136, vUnit:50.00, vTotal:6800.00},
           {cod:'4.2', desc:'Projeto Produtivo c/ Elaboração de Mapa da Propriedade', un:'UND', qtd:136, vUnit:50.00, vTotal:6800.00},
@@ -1185,20 +1185,20 @@ const PROJETOS = {
           {cod:'5.3.1', desc:'Cisterna Comunitária p/ Manejo da Agrobiodiversidade (30 mil L)', un:'UND', qtd:5, vUnit:65861.92, vTotal:329309.59},
         ]},
       ]},
-      { n:6, titulo:'Apoio Operacional', valor:905476.93, etapas:[
+      { n:6, titulo:'Apoio Operacional', valor:905476.93, pctInput:true, etapas:[
         { cod:'6.1', titulo:'Unidade Gestora do Território (UGT)', valor:905476.93, itens:[
           {cod:'6.1', desc:'Pessoal e Encargos', un:'UND', qtd:1, vUnit:633679.93, vTotal:633679.93},
           {cod:'6.2', desc:'Despesas Administrativas', un:'UND', qtd:18, vUnit:4006.00, vTotal:72108.00},
           {cod:'6.3', desc:'Custos de Logística', un:'UND', qtd:18, vUnit:11093.83, vTotal:199689.00},
         ]},
       ]},
-      { n:7, titulo:'Eventos de Avaliação do P1+2', valor:17950.00, etapas:[
+      { n:7, titulo:'Eventos de Avaliação do P1+2', valor:17950.00, pctInput:true, etapas:[
         { cod:'7.1', titulo:'Encontros de Avaliação', valor:17950.00, itens:[
           {cod:'7.1', desc:'Encontro Comunitário/Municipal', un:'UND', qtd:1, vUnit:4750.00, vTotal:4750.00},
           {cod:'7.2', desc:'Encontro Territorial', un:'UND', qtd:1, vUnit:13200.00, vTotal:13200.00},
         ]},
       ]},
-      { n:8, titulo:'Comunicação / Sistematização', valor:19318.22, etapas:[
+      { n:8, titulo:'Comunicação / Sistematização', valor:19318.22, pctInput:true, etapas:[
         { cod:'8.1', titulo:'Sistematização de Experiências', valor:15075.00, itens:[
           {cod:'8.1.1', desc:'Banner de Experiências', un:'UND', qtd:9, vUnit:175.00, vTotal:1575.00},
           {cod:'8.1.2', desc:'Boletins de Experiências', un:'UND', qtd:9000, vUnit:1.50, vTotal:13500.00},
@@ -2079,6 +2079,11 @@ function renderAcompanhamento(id){
             ? `<div style="white-space:nowrap"><input type="number" min="0" max="${totalQtd}" value="${realQtd}" class="acomp-num" style="width:80px;text-align:right" onchange="editEtapaQtd('${id}','${e.cod}',${totalQtd},this.value)"> / ${totalQtd}</div>`
             : `<b>${realQtd} / ${totalQtd}</b>`;
           sub = `${Math.round(pc)}% de ${totalQtd} unidades`;
+        } else if (m.pctInput) {  // volta ao % simples (padrão original)
+          ctrl = edit
+            ? `<input type="number" min="0" max="100" value="${Math.round(pc)}" class="acomp-num" onchange="editEtapa('${id}','${e.cod}',this.value)"> %`
+            : `<b>${Math.round(pc)}%</b>`;
+          sub = '';
         } else {
           const execR = Math.round(pc/100*e.valor);
           ctrl = edit
@@ -2088,11 +2093,17 @@ function renderAcompanhamento(id){
         }
         return `<tr>
           <td style="white-space:nowrap;color:var(--text3)">${e.cod}</td>
-          <td>${e.titulo}<div class="mini-prog"><i style="width:${pc}%"></i></div><div style="font-size:11px;color:var(--text3);margin-top:3px">${sub}</div></td>
+          <td>${e.titulo}<div class="mini-prog"><i style="width:${pc}%"></i></div>${sub?`<div style="font-size:11px;color:var(--text3);margin-top:3px">${sub}</div>`:''}</td>
           <td style="text-align:right;vertical-align:top">${ctrl}</td>
         </tr>`;
       }).join('');
       corpo = `<div class="table-wrap"><table><tbody>${etapas}</tbody></table></div>`;
+    } else if (m.pctInput) {  // meta simples, volta ao % (padrão original)
+      const pc = percMeta(id, m);
+      const ctrl = edit
+        ? `<input type="number" min="0" max="100" value="${pc}" class="acomp-num" onchange="editMetaPerc('${id}',${m.n},this.value)"> %`
+        : `<b>${pc}%</b>`;
+      corpo = `<div style="padding:12px 16px"><div class="gauge-top"><span>Progresso da meta</span>${ctrl}</div><div class="gauge-bar"><i style="width:${pc}%;background:linear-gradient(90deg,var(--green),var(--green2))"></i></div></div>`;
     } else {  // meta simples → execução da meta inteira
       const pc = percMeta(id, m), execR = Math.round(pc/100*m.valor);
       const ctrl = edit
