@@ -2280,6 +2280,24 @@ async function carregarPerfilUsuario(uid, email) {
 
 const PERFIS = { admin:'Administrador', coordenador:'Coordenador', financeiro:'Financeiro', tecnico:'Técnico' };
 
+// ─── Fases do beneficiário (substitui/estende o status antigo de 5 valores) ──
+const FASE_ORDEM = ['reunioes','cadastro','capacitacao','visita_tecnica','recebimento_material','construcao','finalizacao','pagamento_pedreiro','pagamento_beneficiario','assinatura_termo'];
+const FASE_LABELS = {
+  reunioes:'Reuniões', cadastro:'Cadastro', capacitacao:'Capacitação', visita_tecnica:'Visita Técnica',
+  recebimento_material:'Recebimento de Material', construcao:'Construção', finalizacao:'Finalização',
+  pagamento_pedreiro:'Pagamento — Pedreiro', pagamento_beneficiario:'Pagamento — Beneficiário', assinatura_termo:'Assinatura do Termo'
+};
+const FASE_COR = {
+  reunioes:'badge-gray', cadastro:'badge-gray', capacitacao:'badge-blue', visita_tecnica:'badge-blue',
+  recebimento_material:'badge-gold', construcao:'badge-gold', finalizacao:'badge-gold',
+  pagamento_pedreiro:'badge-gold', pagamento_beneficiario:'badge-gold', assinatura_termo:'badge-green'
+};
+// Compatibilidade com o status antigo (5 valores): docs sem 'fase' são lidos via este mapeamento
+const MIGRA_STATUS_FASE = { selecionado:'reunioes', cadastrado:'cadastro', capacitado:'capacitacao', em_construcao:'construcao', concluido:'assinatura_termo' };
+// Ao gravar uma fase nova, deriva o status antigo mais próximo (telas que ainda leem status continuam funcionando)
+const FASE_MIGRA_STATUS = { reunioes:'selecionado', cadastro:'cadastrado', capacitacao:'capacitado', visita_tecnica:'capacitado', recebimento_material:'em_construcao', construcao:'em_construcao', finalizacao:'em_construcao', pagamento_pedreiro:'em_construcao', pagamento_beneficiario:'em_construcao', assinatura_termo:'concluido' };
+function faseDe(b){ return (b&&b.fase) || MIGRA_STATUS_FASE[b&&b.status] || 'reunioes'; }
+
 // ─── INIT ──────────────────────────────────────────────────────
 async function iniciarApp() {
   try {
@@ -2580,8 +2598,6 @@ function renderBenef() {
   if (_filtroBenefMun) lista = lista.filter(b => b.municipioId === _filtroBenefMun);
   const tb = document.getElementById('tabela-benef');
   if (!lista.length) { tb.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">👨‍👩‍👧‍👦</div><h3>Nenhum beneficiário encontrado</h3></div></td></tr>`; return; }
-  const STATUS_B = {selecionado:'badge-gray',cadastrado:'badge-blue',capacitado:'badge-gold',em_construcao:'badge-gold',concluido:'badge-green'};
-  const LABEL_B = {selecionado:'Selecionado',cadastrado:'Cadastrado',capacitado:'Capacitado',em_construcao:'Em Construção',concluido:'Concluído'};
 
   // Pré-calcula % por programa
   const pctMap = {};
@@ -2615,7 +2631,7 @@ function renderBenef() {
       <td>${prog?`<span class="badge badge-green" style="font-size:9px">${prog.sigla||prog.nome}</span>`:'—'}</td>
       <td style="text-align:center">${pctPill(pct.fisica??null, 'green')}</td>
       <td style="text-align:center">${pctPill(pct.financeira??null, 'blue')}</td>
-      <td><span class="badge ${STATUS_B[b.status]||'badge-gray'}">${LABEL_B[b.status]||b.status||'—'}</span></td>
+      <td><span class="badge ${FASE_COR[faseDe(b)]||'badge-gray'}">${FASE_LABELS[faseDe(b)]||'—'}</span></td>
       <td><button class="btn btn-sm btn-outline" onclick="editarBenef('${b.id}')">✏️</button>
           <button class="btn btn-sm btn-red" style="margin-left:4px" onclick="excluirBenef('${b.id}')">🗑️</button></td>
     </tr>`;
@@ -2659,6 +2675,8 @@ async function salvarBenef() {
   if (!nome) { alert('Nome obrigatório.'); return; }
   const mun = _municipios.find(m => m.id === municipioId);
   const prog = _programas.find(p => p.id === programaId);
+  const status = document.getElementById('benef-status').value;
+  const existente = id ? _benef.find(b => b.id === id) : null;
   const data = {
     nome, cpf: document.getElementById('benef-cpf').value.trim(),
     telefone: document.getElementById('benef-tel').value.trim(),
@@ -2668,7 +2686,9 @@ async function salvarBenef() {
     comunidade: document.getElementById('benef-comunidade').value.trim(),
     programaId, programaNome: prog?prog.nome:'',
     contratoId: document.getElementById('benef-contrato').value,
-    status: document.getElementById('benef-status').value,
+    status,
+    // preserva a fase detalhada já lançada pelo técnico; só deriva do status se ainda não houver fase
+    fase: (existente && existente.fase) ? existente.fase : MIGRA_STATUS_FASE[status],
     dataCadastro: document.getElementById('benef-data').value,
     obs: document.getElementById('benef-obs').value.trim(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3168,7 +3188,7 @@ async function salvarUsuario() {
 // ─── DASHBOARD ─────────────────────────────────────────────────
 function atualizarDashboard() {
   const totalBenef = _benef.length;
-  const totalConc = _benef.filter(b => b.status === 'concluido').length;
+  const totalConc = _benef.filter(b => faseDe(b) === 'assinatura_termo').length;
   const totalProg = _programas.filter(p => p.status !== 'inativo').length;
   const totalMun = _municipios.filter(m => m.status !== 'inativo').length;
   const totalExec = _execucoes.reduce((a,e) => a+(e.valor||0), 0);
@@ -3242,7 +3262,7 @@ function relBenefPorMunicipio() {
       <div style="background:#1a6b3a;color:#fff;padding:8px 12px;border-radius:4px;font-weight:800;font-size:12px;margin-bottom:8px">📍 ${mun} — ${lista.length} beneficiário(s)</div>
       <table style="width:100%;border-collapse:collapse;font-size:11px">
         <thead><tr style="background:#e8f5ed"><th style="padding:6px;text-align:left">Nome</th><th>CPF</th><th>Comunidade</th><th>Programa</th><th>Status</th><th>Cadastro</th></tr></thead>
-        <tbody>${lista.map(b=>`<tr style="border-bottom:1px solid #eee"><td style="padding:5px">${b.nome}</td><td style="padding:5px">${b.cpf||'—'}</td><td style="padding:5px">${b.comunidade||'—'}</td><td style="padding:5px">${b.programaNome||'—'}</td><td style="padding:5px">${b.status||'—'}</td><td style="padding:5px">${b.dataCadastro||'—'}</td></tr>`).join('')}</tbody>
+        <tbody>${lista.map(b=>`<tr style="border-bottom:1px solid #eee"><td style="padding:5px">${b.nome}</td><td style="padding:5px">${b.cpf||'—'}</td><td style="padding:5px">${b.comunidade||'—'}</td><td style="padding:5px">${b.programaNome||'—'}</td><td style="padding:5px">${FASE_LABELS[faseDe(b)]||'—'}</td><td style="padding:5px">${b.dataCadastro||'—'}</td></tr>`).join('')}</tbody>
       </table>
     </div>`).join('');
   abrirPDF(`Beneficiários por Município`, html, data, _benef.length + ' beneficiários');
@@ -3252,7 +3272,7 @@ function relBenefCompleto() {
   const data = new Date().toLocaleDateString('pt-BR');
   const html = `<table style="width:100%;border-collapse:collapse;font-size:11px">
     <thead><tr style="background:#e8f5ed"><th style="padding:6px;text-align:left">Nome</th><th>CPF</th><th>Município</th><th>Comunidade</th><th>Programa</th><th>Contato</th><th>Status</th><th>Cadastro</th></tr></thead>
-    <tbody>${_benef.map(b=>{const mun=_municipios.find(m=>m.id===b.municipioId);return`<tr style="border-bottom:1px solid #eee"><td style="padding:5px">${b.nome}</td><td style="padding:5px">${b.cpf||'—'}</td><td style="padding:5px">${mun?mun.nome+'/'+mun.estado:b.municipioNome||'—'}</td><td style="padding:5px">${b.comunidade||'—'}</td><td style="padding:5px">${b.programaNome||'—'}</td><td style="padding:5px">${b.telefone||'—'}</td><td style="padding:5px">${b.status||'—'}</td><td style="padding:5px">${b.dataCadastro||'—'}</td></tr>`;}).join('')}</tbody>
+    <tbody>${_benef.map(b=>{const mun=_municipios.find(m=>m.id===b.municipioId);return`<tr style="border-bottom:1px solid #eee"><td style="padding:5px">${b.nome}</td><td style="padding:5px">${b.cpf||'—'}</td><td style="padding:5px">${mun?mun.nome+'/'+mun.estado:b.municipioNome||'—'}</td><td style="padding:5px">${b.comunidade||'—'}</td><td style="padding:5px">${b.programaNome||'—'}</td><td style="padding:5px">${b.telefone||'—'}</td><td style="padding:5px">${FASE_LABELS[faseDe(b)]||'—'}</td><td style="padding:5px">${b.dataCadastro||'—'}</td></tr>`;}).join('')}</tbody>
   </table>`;
   abrirPDF('Lista Completa de Beneficiários', html, data, _benef.length + ' registros');
 }
