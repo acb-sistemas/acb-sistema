@@ -1693,7 +1693,9 @@ function renderProjeto(id){
   if (p.edital) idRows.push(`<tr><td style="font-weight:700">Edital / Lote</td><td>${p.edital}</td></tr>`);
   if (p.ptNumero) idRows.push(`<tr><td style="font-weight:700">Plano de Trabalho</td><td>nº ${p.ptNumero}${p.registro?' · Registro '+p.registro:''}</td></tr>`);
   if (p.metaFisica) idRows.push(`<tr><td style="font-weight:700">Meta Física</td><td>${p.metaFisica} ${p.unidade||''}</td></tr>`);
-  idRows.push(`<tr><td style="font-weight:700">Período</td><td>${edit ? inp('periodoIni',perIni,'Início',130)+' a '+inp('periodoFim',perFim,'Fim',130) : (perIni||perFim ? `${perIni||'—'} a ${perFim||'—'}` : '<span style="color:var(--text3)">a definir</span>')}</td></tr>`);
+  idRows.push(`<tr><td style="font-weight:700">Período do contrato</td><td>${edit && !p.periodoIni ? inp('periodoIni',perIni,'Início',130)+' a '+inp('periodoFim',perFim,'Fim',130) : (perIni||perFim ? `${perIni||'—'} a ${perFim||'—'}` : '<span style="color:var(--text3)">a definir</span>')}</td></tr>`);
+  const iniAtiv = info.inicioAtividades || '';
+  idRows.push(`<tr><td style="font-weight:700">Início das atividades</td><td>${edit ? inp('inicioAtividades',iniAtiv,'dd/mm/aaaa',130) + ' <span style="font-size:10px;color:var(--text3)">quando começou de fato (usado no cálculo de prazo)</span>' : (iniAtiv || '<span style="color:var(--text3)">a definir</span>')}</td></tr>`);
   idRows.push(`<tr><td style="font-weight:700">Responsável</td><td>${edit ? inp('responsavel',resp,'Nome do responsável','100%') : (resp || '<span style="color:var(--text3)">a definir</span>')}</td></tr>`);
   if (p.banco) idRows.push(`<tr><td style="font-weight:700">Dados Bancários</td><td>${p.banco}</td></tr>`);
 
@@ -1859,7 +1861,7 @@ function editMetaPerc(id, n, val){
 function statusMeta(id, m){
   if (metaAlcancada(id, m)) return 'ok';
   const p = PROJETOS[id], inf = (_acomp[id] && _acomp[id].info) || {};
-  const dIni = inf.periodoIni || p.periodoIni, dFim = inf.periodoFim || p.periodoFim;
+  const dIni = inf.inicioAtividades || inf.periodoIni || p.periodoIni, dFim = inf.periodoFim || p.periodoFim;
   const okD = s => s && /^\d{2}\/\d{2}\/\d{4}$/.test(s);
   if (!okD(dIni) || !okD(dFim)) return 'wait'; // sem período definido → sem cálculo de prazo
   const ini = parseBR(dIni), fim = parseBR(dFim), h = hojeD();
@@ -1932,7 +1934,7 @@ function refreshAcomp(id){ const s = document.getElementById('pt-acomp'); if (s)
 // Prazo: usa período (fixo ou preenchido)
 function prazoInfo(id){
   const p = PROJETOS[id], inf = (_acomp[id] && _acomp[id].info) || {};
-  const dIni = inf.periodoIni || p.periodoIni, dFim = inf.periodoFim || p.periodoFim;
+  const dIni = inf.inicioAtividades || inf.periodoIni || p.periodoIni, dFim = inf.periodoFim || p.periodoFim;
   const okD = s => s && /^\d{2}\/\d{2}\/\d{4}$/.test(s);
   if (!okD(dIni) || !okD(dFim)) return null;
   const ini = parseBR(dIni), fim = parseBR(dFim), h = hojeD(), DIA = 86400000;

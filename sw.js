@@ -1,4 +1,4 @@
-﻿const CACHE = 'acb-v25';
+﻿const CACHE = 'acb-v26';
 const FILES = ['/', '/index.html', '/manifest.json', '/logo-acb.png', '/Falcioni.jpg'];
 
 self.addEventListener('install', e => {
