@@ -2246,11 +2246,16 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('nav-projetos').style.display='block';
     montarNavProjetos(Object.keys(PROJETOS));
     iniciarApp();
-  } else {
-    // ── Portal (sem login): grava o acompanhamento direto no Firestore via regra pública ──
+  } else if (user && user.isAnonymous) {
+    // ── Portal com sessão anônima (Firestore acessível com regra request.auth != null) ──
     currentUser = null;
     document.getElementById('login-screen').classList.remove('show');
     iniciarPortal();
+  } else {
+    // ── Sem sessão → faz login anônimo automático; se indisponível, portal em modo local ──
+    document.getElementById('login-screen').classList.remove('show');
+    try { await auth.signInAnonymously(); } // dispara o onAuthStateChanged de novo (agora anônimo)
+    catch(e){ console.warn('Login anônimo indisponível — acompanhamento em modo local.', e.message); currentUser = null; iniciarPortal(); }
   }
 });
 
