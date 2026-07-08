@@ -978,31 +978,25 @@ const PROJETOS = {
     metaFisica:52, unidade:'cozinhas (USPRs)',
     desemb2025:4713234.18, desemb2026:9426468.27, repasseMensal:785539.03, parcelas:18,
     metas:[
-      { n:1, titulo:'Contratação de Pessoal e Acompanhamento das USPR', valor:2273503.41, etapas:[
-        { cod:'1.1', titulo:'Despesas para Contratação da equipe', valor:536083.41, itens:[
-          {cod:'1.1.1', desc:'Coordenador(a) Nível Superior', un:'UND', qtd:1, vUnit:90000, vTotal:90000},
-          {cod:'1.1.2', desc:'Gerente Financeiro', un:'UND', qtd:1, vUnit:68400, vTotal:68400},
-          {cod:'1.1.3', desc:'Auxiliar Administrativo', un:'UND', qtd:1, vUnit:45180, vTotal:45180},
-          {cod:'1.1.4', desc:'Agentes de Campo Nível Médio', un:'UND', qtd:4, vUnit:47520, vTotal:190080},
-          {cod:'1.1.5', desc:'Encargos Patronais (INSS, FGTS, PIS, Rescisões)', un:'UND', qtd:1, vUnit:142423.41, vTotal:142423.41},
-        ]},
-        { cod:'1.2', titulo:'Apoio, Acompanhamento e Monitoramento das USPR', valor:1737420.00, itens:[
-          {cod:'1.2.1', desc:'Deslocamento e Logística (combustíveis, locação de veículos)', un:'UND', qtd:52, vUnit:8160, vTotal:424320},
-          {cod:'1.2.2', desc:'Ajuda de custo Agente Popular de Segurança Alimentar', un:'UND', qtd:52, vUnit:25200, vTotal:1310400},
-          {cod:'1.2.3', desc:'Material de expediente', un:'UND', qtd:1, vUnit:2700, vTotal:2700},
-        ]},
+      { n:1, titulo:'Contratação de Pessoal e Acompanhamento das USPR', valor:2273503.41, qtdInput:true, etapas:[
+        { cod:'1.1.1', titulo:'Coordenador(a) Nível Superior', valor:90000, itens:[{cod:'1.1.1', desc:'Coordenador(a) Nível Superior', un:'meses', qtd:1, vUnit:90000, vTotal:90000}]},
+        { cod:'1.1.2', titulo:'Gerente Financeiro', valor:68400, itens:[{cod:'1.1.2', desc:'Gerente Financeiro', un:'meses', qtd:1, vUnit:68400, vTotal:68400}]},
+        { cod:'1.1.3', titulo:'Auxiliar Administrativo', valor:45180, itens:[{cod:'1.1.3', desc:'Auxiliar Administrativo', un:'meses', qtd:1, vUnit:45180, vTotal:45180}]},
+        { cod:'1.1.4', titulo:'Agentes de Campo Nível Médio', valor:190080, itens:[{cod:'1.1.4', desc:'Agentes de Campo Nível Médio', un:'meses', qtd:4, vUnit:47520, vTotal:190080}]},
+        { cod:'1.1.5', titulo:'Encargos Patronais (INSS, FGTS, PIS, Rescisões)', valor:142423.41, itens:[{cod:'1.1.5', desc:'Encargos Patronais (INSS, FGTS, PIS, Rescisões)', un:'UND', qtd:1, vUnit:142423.41, vTotal:142423.41}]},
+        { cod:'1.2.1', titulo:'Deslocamento e Logística (combustíveis, locação de veículos)', valor:424320, itens:[{cod:'1.2.1', desc:'Deslocamento e Logística (combustíveis, locação de veículos)', un:'semanas', qtd:52, vUnit:8160, vTotal:424320}]},
+        { cod:'1.2.2', titulo:'Ajuda de custo Agente Popular de Segurança Alimentar', valor:1310400, itens:[{cod:'1.2.2', desc:'Ajuda de custo Agente Popular de Segurança Alimentar', un:'semanas', qtd:52, vUnit:25200, vTotal:1310400}]},
+        { cod:'1.2.3', titulo:'Material de expediente', valor:2700, itens:[{cod:'1.2.3', desc:'Material de expediente', un:'UND', qtd:1, vUnit:2700, vTotal:2700}]},
       ]},
-      { n:2, titulo:'Gerenciar Unidades Sociais de Produção de Refeições', valor:11866199.04, etapas:[
-        { cod:'2.1', titulo:'Produção de Refeições', valor:11866199.04, itens:[
-          {cod:'2.1.1', desc:'Gêneros Alimentícios (Proteínas, Carboidratos, Hortaliças, Sódios e Lipídios)', un:'UND', qtd:52, vUnit:195806.52, vTotal:10181939.04},
-          {cod:'2.1.2', desc:'Embalagens e Descartáveis', un:'UND', qtd:52, vUnit:18000, vTotal:936000},
-          {cod:'2.1.3', desc:'EPIs', un:'UND', qtd:52, vUnit:720, vTotal:37440},
-          {cod:'2.1.4', desc:'Material de Higienização e Limpeza', un:'UND', qtd:52, vUnit:3600, vTotal:187200},
-          {cod:'2.1.5', desc:'Despesa Operacional — Gás', un:'UND', qtd:52, vUnit:7050, vTotal:366600},
-          {cod:'2.1.6', desc:'Despesa Operacional — Água', un:'UND', qtd:29, vUnit:1380, vTotal:40020},
-          {cod:'2.1.7', desc:'Despesa Operacional — Luz', un:'UND', qtd:52, vUnit:1890, vTotal:98280},
-          {cod:'2.1.8', desc:'Manutenção de Equipamentos', un:'UND', qtd:52, vUnit:360, vTotal:18720},
-        ]},
+      { n:2, titulo:'Gerenciar Unidades Sociais de Produção de Refeições', valor:11866199.04, qtdInput:true, etapas:[
+        { cod:'2.1.1', titulo:'Gêneros Alimentícios (Proteínas, Carboidratos, Hortaliças, Sódios e Lipídios)', valor:10181939.04, itens:[{cod:'2.1.1', desc:'Gêneros Alimentícios (Proteínas, Carboidratos, Hortaliças, Sódios e Lipídios)', un:'semanas', qtd:52, vUnit:195806.52, vTotal:10181939.04}]},
+        { cod:'2.1.2', titulo:'Embalagens e Descartáveis', valor:936000, itens:[{cod:'2.1.2', desc:'Embalagens e Descartáveis', un:'semanas', qtd:52, vUnit:18000, vTotal:936000}]},
+        { cod:'2.1.3', titulo:'EPIs', valor:37440, itens:[{cod:'2.1.3', desc:'EPIs', un:'semanas', qtd:52, vUnit:720, vTotal:37440}]},
+        { cod:'2.1.4', titulo:'Material de Higienização e Limpeza', valor:187200, itens:[{cod:'2.1.4', desc:'Material de Higienização e Limpeza', un:'semanas', qtd:52, vUnit:3600, vTotal:187200}]},
+        { cod:'2.1.5', titulo:'Despesa Operacional — Gás', valor:366600, itens:[{cod:'2.1.5', desc:'Despesa Operacional — Gás', un:'semanas', qtd:52, vUnit:7050, vTotal:366600}]},
+        { cod:'2.1.6', titulo:'Despesa Operacional — Água', valor:40020, itens:[{cod:'2.1.6', desc:'Despesa Operacional — Água', un:'semanas', qtd:29, vUnit:1380, vTotal:40020}]},
+        { cod:'2.1.7', titulo:'Despesa Operacional — Luz', valor:98280, itens:[{cod:'2.1.7', desc:'Despesa Operacional — Luz', un:'semanas', qtd:52, vUnit:1890, vTotal:98280}]},
+        { cod:'2.1.8', titulo:'Manutenção de Equipamentos', valor:18720, itens:[{cod:'2.1.8', desc:'Manutenção de Equipamentos', un:'semanas', qtd:52, vUnit:360, vTotal:18720}]},
       ]},
     ],
     cronograma:[
@@ -1806,6 +1800,20 @@ async function carregarAcomp(id){
   // 1ª abertura (sem dado salvo): usa seedEtapas do plano como % inicial (ex: execução já realizada antes do app)
   if (!Object.keys(_acomp[id].etapas).length && PROJETOS[id].seedEtapas) {
     Object.entries(PROJETOS[id].seedEtapas).forEach(([cod,perc]) => { _acomp[id].etapas[cod] = { perc }; });
+  }
+  // Migração pontual (08/07/2026): Ceará Sem Fome foi de etapa agrupada -> item detalhado.
+  // Distribui a % antiga da etapa-mãe pros itens novos, só na 1ª carga após a mudança.
+  if (id === 'ceara-sem-fome') {
+    const migrar = (codAntigo, novosCod) => {
+      const antigo = _acomp[id].etapas[codAntigo];
+      if (antigo && !_acomp[id].etapas[novosCod[0]]) {
+        novosCod.forEach(cod => { _acomp[id].etapas[cod] = { perc: antigo.perc }; });
+        delete _acomp[id].etapas[codAntigo];
+      }
+    };
+    migrar('1.1', ['1.1.1','1.1.2','1.1.3','1.1.4','1.1.5']);
+    migrar('1.2', ['1.2.1','1.2.2','1.2.3']);
+    migrar('2.1', ['2.1.1','2.1.2','2.1.3','2.1.4','2.1.5','2.1.6','2.1.7','2.1.8']);
   }
   _acomp[id].parcelas = _acomp[id].parcelas || {};
   _acomp[id].info = _acomp[id].info || {};
