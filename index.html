@@ -3287,6 +3287,24 @@ function mascaraTel(el) {
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', e => { if (e.target === overlay) fecharModal(overlay.id); });
 });
+
+// ─── SERVICE WORKER + ATUALIZAÇÃO AUTOMÁTICA ───────────────────
+if ('serviceWorker' in navigator) {
+  const _tinhaControlador = !!navigator.serviceWorker.controller;
+  let _recarregando = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (_recarregando) return;
+    _recarregando = true;
+    if (_tinhaControlador) location.reload(); // recarrega só quando é ATUALIZAÇÃO (não na 1ª instalação)
+  });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      reg.update();
+      // verifica se há versão nova quando o app volta ao foco (ex.: abrir o app instalado)
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update(); });
+    }).catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
