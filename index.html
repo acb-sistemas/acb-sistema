@@ -1174,7 +1174,7 @@ const PROJETOS = {
           {cod:'4.7', desc:'Atualização do Diagnóstico de Agroecosistemas', un:'UND', qtd:136, vUnit:50.00, vTotal:6800.00},
         ]},
       ]},
-      { n:5, titulo:'Implementação de Tecnologias Sociais', valor:2680538.42, etapas:[
+      { n:5, titulo:'Implementação de Tecnologias Sociais', valor:2680538.42, qtdInput:true, etapas:[
         { cod:'5.1', titulo:'Cisterna Calçadão com Safisp', valor:2090273.83, itens:[
           {cod:'5.1.1', desc:'Cisterna Calçadão (52 m³)', un:'UND', qtd:118, vUnit:17714.19, vTotal:2090273.83},
         ]},
@@ -1812,6 +1812,7 @@ async function carregarAcomp(id){
   _acomp[id].cronograma = _acomp[id].cronograma || [];
   _acomp[id].metasPerc = _acomp[id].metasPerc || {};
   _acomp[id].aditivos = _acomp[id].aditivos || {};
+  _acomp[id].obsMetas = _acomp[id].obsMetas || {};
 }
 
 // Cronograma: fixo do plano (Ceará) OU editável (cisternas etc.)
@@ -1966,6 +1967,19 @@ function editMetaValor(id, n, planejado, val){
   _acomp[id].metasPerc[n] = perc;
   salvarAcomp(id); refreshAcomp(id);
 }
+// Edição por QUANTIDADE realizada (ex.: nº de cisternas construídas) — converte para % internamente
+function editEtapaQtd(id, cod, totalQtd, val){
+  const v = Math.max(0, Math.round(+val||0)), perc = totalQtd > 0 ? Math.max(0, Math.min(100, v / totalQtd * 100)) : 0;
+  _acomp[id].etapas[cod] = { ...(_acomp[id].etapas[cod]||{}), perc };
+  salvarAcomp(id); refreshAcomp(id);
+}
+// Observações por meta (motivos de atraso etc., escrito pelo coordenador/responsável)
+function obsMeta(id, n){ return (_acomp[id] && _acomp[id].obsMetas && _acomp[id].obsMetas[n]) || ''; }
+function editObsMeta(id, n, val){
+  _acomp[id].obsMetas = _acomp[id].obsMetas || {};
+  _acomp[id].obsMetas[n] = val;
+  salvarAcomp(id);
+}
 // Execução física em R$ (executado e total planejado)
 function valorFisico(id){
   const p = PROJETOS[id]; let exec = 0, total = 0;
@@ -2056,13 +2070,25 @@ function renderAcompanhamento(id){
     let corpo;
     if (temEtapas(m)) {
       const etapas = m.etapas.map(e => {
-        const pc = percEtapa(id, e.cod), execR = Math.round(pc/100*e.valor);
-        const ctrl = edit
-          ? `<div style="white-space:nowrap">R$ <input type="number" min="0" value="${execR}" class="acomp-num" style="width:112px;text-align:right" onchange="editEtapaVal('${id}','${e.cod}',${e.valor},this.value)"></div>`
-          : `<b>${fmt(execR)}</b>`;
+        const pc = percEtapa(id, e.cod);
+        const totalQtd = m.qtdInput && e.itens && e.itens[0] && e.itens[0].qtd;
+        let ctrl, sub;
+        if (totalQtd) {  // meta marcada p/ registrar por QUANTIDADE (ex.: nº de cisternas construídas)
+          const realQtd = Math.round(pc/100*totalQtd);
+          ctrl = edit
+            ? `<div style="white-space:nowrap"><input type="number" min="0" max="${totalQtd}" value="${realQtd}" class="acomp-num" style="width:80px;text-align:right" onchange="editEtapaQtd('${id}','${e.cod}',${totalQtd},this.value)"> / ${totalQtd}</div>`
+            : `<b>${realQtd} / ${totalQtd}</b>`;
+          sub = `${Math.round(pc)}% de ${totalQtd} unidades`;
+        } else {
+          const execR = Math.round(pc/100*e.valor);
+          ctrl = edit
+            ? `<div style="white-space:nowrap">R$ <input type="number" min="0" value="${execR}" class="acomp-num" style="width:112px;text-align:right" onchange="editEtapaVal('${id}','${e.cod}',${e.valor},this.value)"></div>`
+            : `<b>${fmt(execR)}</b>`;
+          sub = `${Math.round(pc)}% de ${fmt(e.valor)}`;
+        }
         return `<tr>
           <td style="white-space:nowrap;color:var(--text3)">${e.cod}</td>
-          <td>${e.titulo}<div class="mini-prog"><i style="width:${pc}%"></i></div><div style="font-size:11px;color:var(--text3);margin-top:3px">${Math.round(pc)}% de ${fmt(e.valor)}</div></td>
+          <td>${e.titulo}<div class="mini-prog"><i style="width:${pc}%"></i></div><div style="font-size:11px;color:var(--text3);margin-top:3px">${sub}</div></td>
           <td style="text-align:right;vertical-align:top">${ctrl}</td>
         </tr>`;
       }).join('');
@@ -2074,10 +2100,18 @@ function renderAcompanhamento(id){
         : `<b>${fmt(execR)}</b>`;
       corpo = `<div style="padding:12px 16px"><div class="gauge-top"><span>Execução da meta &nbsp;<span style="color:var(--text3);font-weight:400">(${Math.round(pc)}% de ${fmt(m.valor)})</span></span>${ctrl}</div><div class="gauge-bar"><i style="width:${pc}%;background:linear-gradient(90deg,var(--green),var(--green2))"></i></div></div>`;
     }
+    const obs = obsMeta(id, m.n);
+    const obsHtml = edit
+      ? `<div style="padding:10px 16px;border-top:1px solid var(--border)">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Observações</label>
+          <textarea placeholder="Motivos de atraso, observações do coordenador..." style="width:100%;min-height:56px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;resize:vertical" onchange="editObsMeta('${id}',${m.n},this.value)">${obs}</textarea>
+        </div>`
+      : (obs ? `<div style="padding:10px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)"><b style="color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-size:11px;display:block;margin-bottom:3px">Observações</b>${obs}</div>` : '');
     return `<div class="meta-block">
       <div class="meta-head"><div class="mh-tit"><small>Meta ${m.n}</small>${m.titulo}</div>
         <span class="st st-${stM}"><span class="st-dot"></span>${ST_META[stM]}</span></div>
       ${corpo}
+      ${obsHtml}
     </div>`;
   }).join('');
 
