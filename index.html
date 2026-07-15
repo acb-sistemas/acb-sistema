@@ -238,6 +238,63 @@ tbody tr:last-child td{border-bottom:none}
 
 .page{display:none}
 .page.active{display:block}
+
+/* FICHA DO BENEFICIÁRIO — cabeçalho */
+.ficha-hero{background:linear-gradient(135deg,var(--dark),#1a6b3a);border-radius:14px;padding:20px;color:#fff;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.ficha-hero h2{font-size:18px;font-weight:800;margin-bottom:4px}
+.ficha-hero .fh-sub{font-size:12px;color:rgba(255,255,255,.75)}
+
+/* STEPPER DE FASE */
+.fase-stepper{display:flex;flex-direction:column;gap:2px}
+.fase-step{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .15s}
+.fase-step:hover{background:var(--green3)}
+.fase-step .fs-dot{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:#e8ecea;color:var(--text3)}
+.fase-step.done .fs-dot{background:var(--green);color:#fff}
+.fase-step.current .fs-dot{background:var(--gold);color:#fff;box-shadow:0 0 0 4px var(--gold2)}
+.fase-step.done .fs-line{background:var(--green)}
+.fase-step .fs-line{position:absolute}
+.fase-step .fs-label{font-size:13px;font-weight:600;color:var(--text)}
+.fase-step.current .fs-label{color:var(--dark);font-weight:800}
+.fase-step .fs-tag{margin-left:auto;font-size:10px;color:var(--text3)}
+.fase-wrap{position:relative}
+.fase-wrap::before{content:'';position:absolute;left:24px;top:20px;bottom:20px;width:2px;background:var(--border);z-index:0}
+
+/* LOCALIZAÇÃO */
+.loc-box{background:var(--green3);border-radius:10px;padding:16px;text-align:center}
+.loc-coords{font-family:monospace;font-size:13px;color:var(--dark);margin:8px 0}
+
+/* FOTOS / OBSERVAÇÕES (timeline) */
+.foto-item{display:flex;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px}
+.foto-item img{width:76px;height:76px;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer}
+.foto-item .fi-txt{flex:1;min-width:0}
+.foto-item .fi-date{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+.foto-item .fi-desc{font-size:13px;color:var(--text);margin-top:3px;white-space:pre-wrap}
+
+/* CHECKLIST DE MATERIAL */
+.mat-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;flex-wrap:wrap}
+.mat-row .mat-nome{font-weight:700;font-size:13px;flex:1;min-width:140px}
+.mat-status-btn{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:#fff;cursor:pointer}
+.mat-status-btn.ok{background:var(--green3);border-color:var(--green);color:var(--green)}
+.mat-status-btn.avariado{background:#fef2f2;border-color:var(--red);color:var(--red)}
+
+/* AGENDA */
+.agenda-item{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.agenda-item.feito{opacity:.5}
+.agenda-item.feito .ag-tit{text-decoration:line-through}
+.agenda-dia{background:var(--dark);color:#fff;border-radius:8px;padding:8px 10px;text-align:center;flex-shrink:0;min-width:52px}
+.agenda-dia .ad-num{font-size:17px;font-weight:800;line-height:1}
+.agenda-dia .ad-mes{font-size:9px;text-transform:uppercase;letter-spacing:.5px}
+.agenda-item .ag-tit{font-weight:700;font-size:13px}
+.agenda-item .ag-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* AVALIAÇÃO / SUPERVISOR */
+.aval-crit{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.aval-crit:last-child{border-bottom:none}
+.aval-nota{display:flex;gap:4px}
+.aval-nota button{width:30px;height:30px;border-radius:6px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-weight:700;font-size:12px}
+.aval-nota button.sel{background:var(--green);border-color:var(--green);color:#fff}
+
+.badge-outline{background:#fff;border:1.5px solid var(--border);color:var(--text2)}
 </style>
 </head>
 <body>
@@ -343,14 +400,26 @@ tbody tr:last-child td{border-bottom:none}
         <div class="nav-item" onclick="navigate('usuarios')">
           <span class="nav-item-icon">👥</span> Usuários
         </div>
+        <div class="nav-item" onclick="navigate('evolucao-area'); carregarEvolucaoArea();">
+          <span class="nav-item-icon">📈</span> Evolução por Área
+        </div>
+        <div class="nav-item" onclick="navigate('avaliar-tecnicos'); carregarAvaliacoesTecnicos();">
+          <span class="nav-item-icon">✅</span> Avaliar Técnicos
+        </div>
       </div>
       <div class="nav-group" id="nav-tecnico" style="display:none">
         <div class="nav-group-label">Campo</div>
         <div class="nav-item active" onclick="navigate('meus-beneficiarios')">
           <span class="nav-item-icon">👨‍👩‍👧‍👦</span> Meus Beneficiários
         </div>
-        <div class="nav-item" onclick="navigate('minha-agenda')">
+        <div class="nav-item" onclick="navigate('minha-agenda'); carregarAgenda();">
           <span class="nav-item-icon">🗓️</span> Minha Agenda
+        </div>
+        <div class="nav-item" onclick="navigate('questionario-marias'); carregarQuestMarias();">
+          <span class="nav-item-icon">🌱</span> Questionário Marias
+        </div>
+        <div class="nav-item" onclick="navigate('minhas-avaliacoes'); carregarMinhasAvaliacoes();">
+          <span class="nav-item-icon">⭐</span> Minhas Avaliações
         </div>
       </div>
     </nav>
@@ -463,9 +532,52 @@ tbody tr:last-child td{border-bottom:none}
         <div id="lista-benef-tecnico"><div class="loading"><span class="spin">⏳</span></div></div>
       </div>
 
+      <!-- MODO TÉCNICO: FICHA DO BENEFICIÁRIO -->
+      <div class="page" id="page-ficha-benef">
+        <div id="ficha-benef-conteudo"></div>
+      </div>
+
       <!-- MODO TÉCNICO: MINHA AGENDA -->
       <div class="page" id="page-minha-agenda">
-        <div class="card"><div class="empty-state"><div class="empty-state-icon">🗓️</div><h3>Agenda em construção</h3></div></div>
+        <div class="search-bar">
+          <button class="btn btn-green" onclick="abrirModalAgenda()">+ Novo Compromisso</button>
+        </div>
+        <div id="lista-agenda"><div class="loading"><span class="spin">⏳</span></div></div>
+      </div>
+
+      <!-- MODO TÉCNICO: QUESTIONÁRIO MARIAS -->
+      <div class="page" id="page-questionario-marias">
+        <div class="search-bar">
+          <button class="btn btn-green" onclick="abrirModalQuestMarias()">+ Novo Questionário</button>
+        </div>
+        <div id="lista-quest-marias"><div class="loading"><span class="spin">⏳</span></div></div>
+      </div>
+
+      <!-- MODO TÉCNICO: MINHAS AVALIAÇÕES -->
+      <div class="page" id="page-minhas-avaliacoes">
+        <div id="lista-minhas-avaliacoes"><div class="loading"><span class="spin">⏳</span></div></div>
+      </div>
+
+      <!-- ADMIN: EVOLUÇÃO POR ÁREA -->
+      <div class="page" id="page-evolucao-area">
+        <div class="search-bar">
+          <select class="search-input" id="filtro-evol-programa" onchange="renderEvolucaoArea()">
+            <option value="">Todos os programas</option>
+          </select>
+          <button class="btn btn-outline" onclick="carregarEvolucaoArea()">🔄 Atualizar</button>
+        </div>
+        <div id="evolucao-area-conteudo"><div class="loading"><span class="spin">⏳</span></div></div>
+      </div>
+
+      <!-- ADMIN: AVALIAR TÉCNICOS -->
+      <div class="page" id="page-avaliar-tecnicos">
+        <div class="search-bar">
+          <select class="search-input" id="filtro-aval-tecnico" onchange="renderHistoricoAvaliacoes()">
+            <option value="">Selecione um técnico...</option>
+          </select>
+          <button class="btn btn-green" onclick="abrirModalAvaliacao()">+ Nova Avaliação</button>
+        </div>
+        <div id="historico-avaliacoes"></div>
       </div>
 
       <!-- MUNICÍPIOS -->
@@ -953,10 +1065,123 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 </div>
 
+<!-- Modal Compromisso (Agenda do Técnico) -->
+<div class="modal-overlay" id="modal-agenda">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h2 id="modal-ag-title">Novo Compromisso</h2>
+      <button class="modal-close" onclick="fecharModal('modal-agenda')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ag-id">
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Data *</label><input id="ag-data" type="date"></div>
+        <div class="form-group"><label>Hora</label><input id="ag-hora" type="time"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Tipo *</label>
+          <select id="ag-tipo">
+            <option value="visita">Visita Técnica</option>
+            <option value="reuniao">Reunião</option>
+            <option value="capacitacao">Capacitação</option>
+            <option value="entrega_material">Entrega de Material</option>
+            <option value="pagamento">Pagamento</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Beneficiário</label>
+          <select id="ag-benef"><option value="">— (opcional) —</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Título *</label><input id="ag-titulo" placeholder="Ex: Visita à família Silva"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Observações</label><textarea id="ag-obs" placeholder="Detalhes do compromisso..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-agenda')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarAgenda()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Questionário Marias -->
+<div class="modal-overlay" id="modal-quest-marias">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <h2 id="modal-qm-title">Questionário — Quintais das Marias</h2>
+      <button class="modal-close" onclick="fecharModal('modal-quest-marias')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="qm-id">
+      <div class="alert alert-info" style="margin-bottom:14px">⚠️ Perguntas provisórias — este questionário será substituído pelo modelo oficial da ACB assim que enviado.</div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Nome da Beneficiária *</label><input id="qm-nome" placeholder="Nome completo"></div>
+        <div class="form-group"><label>Data da Visita</label><input id="qm-data" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>1. Situação atual do quintal produtivo</label><textarea id="qm-p1" placeholder="Descreva o que já existe no quintal..."></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>2. O que a beneficiária deseja cultivar/produzir</label><textarea id="qm-p2"></textarea></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group"><label>3. Tem acesso a água para o quintal?</label>
+          <select id="qm-p3"><option value="">Selecione...</option><option>Sim, o ano todo</option><option>Sim, parcialmente</option><option>Não</option></select>
+        </div>
+        <div class="form-group"><label>4. Nº de pessoas na família</label><input id="qm-p4" type="number" min="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>5. Dificuldades relatadas pela beneficiária</label><textarea id="qm-p5"></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>6. Expectativas com o programa</label><textarea id="qm-p6"></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Observações da técnica</label><textarea id="qm-obs"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-quest-marias')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarQuestMarias()">💾 Salvar Questionário</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Avaliação de Técnico (Supervisor) -->
+<div class="modal-overlay" id="modal-avaliacao">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <h2>Nova Avaliação de Técnico</h2>
+      <button class="modal-close" onclick="fecharModal('modal-avaliacao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row cols-2">
+        <div class="form-group"><label>Técnico *</label><select id="av-tecnico"><option value="">Selecione...</option></select></div>
+        <div class="form-group"><label>Data</label><input id="av-data" type="date"></div>
+      </div>
+      <div id="av-criterios" style="margin-top:6px"></div>
+      <div class="form-row" style="margin-top:10px">
+        <div class="form-group"><label>Observações do supervisor</label><textarea id="av-obs" placeholder="Pontos fortes, a melhorar..."></textarea></div>
+      </div>
+      <div class="alert alert-success" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Nota final</span><b id="av-nota-final" style="font-size:20px">—</b>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-avaliacao')">Cancelar</button>
+      <button class="btn btn-green" onclick="salvarAvaliacao()">💾 Salvar Avaliação</button>
+    </div>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
 <script>
 // ─── FIREBASE CONFIG ───────────────────────────────────────────
@@ -971,12 +1196,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+const storage = firebase.storage();
 
 // ─── STATE ─────────────────────────────────────────────────────
 let currentUser = null, currentPerfil = 'tecnico';
 let _programas = [], _contratos = [], _municipios = [], _tecnicos = [];
 let _benef = [], _execucoes = [], _usuarios = [], _repasses = [];
 let _filtroContratoExec = '';
+let _fichaAtualId = null;
+let _agenda = [], _questMarias = [], _avaliacoes = [];
+const AV_CRITERIOS = ['Pontualidade e assiduidade','Qualidade do cadastro dos beneficiários','Cumprimento do cronograma de visitas','Relacionamento com a comunidade','Organização de documentos/fotos','Comunicação com a coordenação'];
 
 // ─── PORTAL DE PROJETOS ────────────────────────────────────────
 // Senhas master (acessam TODOS os projetos)
@@ -2367,7 +2596,7 @@ function renderBenefTecnico() {
     return;
   }
   box.innerHTML = lista.map(b => `
-    <div class="card" style="margin-bottom:10px;cursor:pointer" onclick="editarBenef('${b.id}')">
+    <div class="card" style="margin-bottom:10px;cursor:pointer" onclick="abrirFichaBenef('${b.id}')">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
         <div>
           <div style="font-weight:700">${b.nome}</div>
@@ -2376,6 +2605,568 @@ function renderBenefTecnico() {
         <span class="badge ${FASE_COR[faseDe(b)]||'badge-gray'}">${FASE_LABELS[faseDe(b)]||'—'}</span>
       </div>
     </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// FICHA DO BENEFICIÁRIO (técnico) — Dados · Fase · Localização · Fotos · Material
+// ══════════════════════════════════════════════════════════════
+function benefAtual(){ return _benefTecnico.find(b => b.id === _fichaAtualId) || _benef.find(b => b.id === _fichaAtualId); }
+
+async function abrirFichaBenef(id){
+  _fichaAtualId = id;
+  navigate('ficha-benef');
+  renderFichaBenef('dados');
+}
+
+function fichaTab(el, secId){
+  el.parentElement.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#ficha-benef-conteudo .ficha-sec').forEach(s => s.style.display='none');
+  document.getElementById(secId).style.display='block';
+  if (secId === 'ft-fotos') carregarFotosBenef(_fichaAtualId);
+  if (secId === 'ft-material') carregarMaterialBenef(_fichaAtualId);
+}
+
+function renderFichaBenef(abaAtiva){
+  const b = benefAtual();
+  const el = document.getElementById('ficha-benef-conteudo');
+  if (!b){ el.innerHTML = `<div class="empty-state"><h3>Beneficiário não encontrado</h3></div>`; return; }
+  const fase = faseDe(b);
+  el.innerHTML = `
+    <div class="ficha-hero">
+      <div>
+        <h2>👤 ${b.nome}</h2>
+        <div class="fh-sub">${b.comunidade||'—'} · ${b.municipioNome||'—'} · ${b.programaNome||'Programa não definido'}</div>
+      </div>
+      <span class="badge ${FASE_COR[fase]||'badge-gray'}" style="font-size:12px;padding:6px 14px">${FASE_LABELS[fase]||'—'}</span>
+    </div>
+    <div class="page-tabs" id="ficha-tabs">
+      <div class="page-tab active" onclick="fichaTab(this,'ft-dados')">Dados</div>
+      <div class="page-tab" onclick="fichaTab(this,'ft-fase')">Fase</div>
+      <div class="page-tab" onclick="fichaTab(this,'ft-loc')">📍 Localização</div>
+      <div class="page-tab" onclick="fichaTab(this,'ft-fotos')">📷 Fotos</div>
+      <div class="page-tab" onclick="fichaTab(this,'ft-material')">📦 Material</div>
+    </div>
+    <div id="ft-dados" class="ficha-sec">${renderFichaDados(b)}</div>
+    <div id="ft-fase" class="ficha-sec" style="display:none">${renderFichaFase(b)}</div>
+    <div id="ft-loc" class="ficha-sec" style="display:none">${renderFichaLocalizacao(b)}</div>
+    <div id="ft-fotos" class="ficha-sec" style="display:none"><div class="loading"><span class="spin">⏳</span></div></div>
+    <div id="ft-material" class="ficha-sec" style="display:none"><div class="loading"><span class="spin">⏳</span></div></div>
+  `;
+}
+
+// ── Aba Dados ──
+function renderFichaDados(b){
+  const linha = (lbl,val) => `<tr><td style="font-weight:700;width:42%">${lbl}</td><td>${val || '<span style="color:var(--text3)">—</span>'}</td></tr>`;
+  return `<div class="card">
+    <div class="card-title">Dados <span>Cadastrais</span></div>
+    <table><tbody>
+      ${linha('CPF', b.cpf)}
+      ${linha('Telefone', b.telefone)}
+      ${linha('Data de Nascimento', fmtDataBR(b.nascimento))}
+      ${linha('Município', b.municipioNome)}
+      ${linha('Comunidade', b.comunidade)}
+      ${linha('Programa', b.programaNome)}
+      ${linha('Data de Cadastro', fmtDataBR(b.dataCadastro))}
+      ${linha('Observações', b.obs)}
+    </tbody></table>
+    <button class="btn btn-outline btn-sm" style="margin-top:14px" onclick="editarBenef('${b.id}')">✏️ Editar Dados Cadastrais</button>
+  </div>`;
+}
+function fmtDataBR(s){ return s ? s.split('-').reverse().join('/') : ''; }
+
+// ── Aba Fase ──
+function renderFichaFase(b){
+  const atual = faseDe(b);
+  const idxAtual = FASE_ORDEM.indexOf(atual);
+  const steps = FASE_ORDEM.map((f,i) => {
+    const cls = i < idxAtual ? 'done' : (i === idxAtual ? 'current' : '');
+    const icone = i < idxAtual ? '✓' : (i+1);
+    return `<div class="fase-step ${cls}" onclick="confirmarMudarFase('${b.id}','${f}')">
+      <div class="fs-dot">${icone}</div>
+      <div class="fs-label">${FASE_LABELS[f]}</div>
+      ${i===idxAtual ? '<span class="fs-tag">FASE ATUAL</span>' : ''}
+    </div>`;
+  }).join('');
+  return `<div class="card"><div class="card-title">Progresso do <span>Beneficiário</span></div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Toque em uma fase para marcá-la como a fase atual do beneficiário.</p>
+    <div class="fase-stepper">${steps}</div>
+  </div>`;
+}
+async function confirmarMudarFase(id, fase){
+  if (fase === faseDe(benefAtual())) return;
+  if (!confirm(`Marcar fase atual como "${FASE_LABELS[fase]}"?`)) return;
+  try {
+    await col('beneficiarios').doc(id).update({
+      fase, status: FASE_MIGRA_STATUS[fase] || 'cadastrado',
+      faseAtualizadaEm: firebase.firestore.FieldValue.serverTimestamp(),
+      faseAtualizadaPor: currentUser ? currentUser.uid : null,
+    });
+    const b = benefAtual(); if (b) b.fase = fase;
+    renderFichaBenef();
+    document.querySelector('#ficha-tabs .page-tab:nth-child(2)')?.click();
+  } catch(e){ alert('Erro ao atualizar fase: '+e.message); }
+}
+
+// ── Aba Localização ──
+function renderFichaLocalizacao(b){
+  const loc = b.localizacao;
+  if (!loc || !loc.lat) {
+    return `<div class="card"><div class="card-title">Localização da <span>Residência</span></div>
+      <div class="loc-box">
+        <div style="font-size:32px">📍</div>
+        <p style="font-size:13px;color:var(--text2);margin:6px 0 12px">Nenhuma localização registrada ainda.</p>
+        <button class="btn btn-green" onclick="capturarLocalizacao('${b.id}')">📍 Capturar Localização Atual</button>
+      </div>
+    </div>`;
+  }
+  const mapsUrl = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
+  const dataStr = loc.capturadoEm ? new Date(loc.capturadoEm).toLocaleString('pt-BR') : '';
+  return `<div class="card"><div class="card-title">Localização da <span>Residência</span></div>
+    <div class="loc-box">
+      <div style="font-size:32px">📍</div>
+      <div class="loc-coords">${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}</div>
+      <div style="font-size:11px;color:var(--text3)">Registrado em ${dataStr}</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+        <a class="btn btn-green btn-sm" href="${mapsUrl}" target="_blank" rel="noopener">🗺️ Abrir no Maps</a>
+        <button class="btn btn-outline btn-sm" onclick="compartilharLocalizacao('${b.id}')">🔗 Compartilhar Link</button>
+        <button class="btn btn-outline btn-sm" onclick="capturarLocalizacao('${b.id}')">📍 Atualizar</button>
+      </div>
+    </div>
+  </div>`;
+}
+function capturarLocalizacao(id){
+  if (!navigator.geolocation) { alert('Este dispositivo/navegador não suporta captura de localização.'); return; }
+  const btns = document.querySelectorAll(`button[onclick*="capturarLocalizacao('${id}')"]`);
+  btns.forEach(x => x.textContent = '📍 Obtendo localização...');
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude, longitude } = pos.coords;
+    try {
+      await col('beneficiarios').doc(id).update({
+        localizacao: { lat: latitude, lng: longitude, capturadoEm: Date.now(), capturadoPor: currentUser ? currentUser.uid : null }
+      });
+      const b = benefAtual(); if (b) b.localizacao = { lat: latitude, lng: longitude, capturadoEm: Date.now() };
+      renderFichaBenef(); document.querySelector('#ficha-tabs .page-tab:nth-child(3)')?.click();
+    } catch(e){ alert('Erro ao salvar localização: '+e.message); }
+  }, err => {
+    alert('Não foi possível obter a localização: ' + (err.message||'permissão negada. Verifique se o GPS/localização está ativado no dispositivo.'));
+    renderFichaBenef();
+  }, { enableHighAccuracy:true, timeout:15000 });
+}
+function compartilharLocalizacao(id){
+  const b = benefAtual(); if (!b || !b.localizacao) return;
+  const url = `https://www.google.com/maps?q=${b.localizacao.lat},${b.localizacao.lng}`;
+  const texto = `📍 Localização da casa de ${b.nome}: ${url}`;
+  if (navigator.share) { navigator.share({ title:'Localização — '+b.nome, text: texto, url }).catch(()=>{}); }
+  else { navigator.clipboard.writeText(texto).then(()=>alert('Link copiado! Agora é só colar e enviar.')).catch(()=>prompt('Copie o link:', url)); }
+}
+
+// ── Aba Fotos & Observações ──
+async function carregarFotosBenef(id){
+  const box = document.getElementById('ft-fotos');
+  try {
+    const snap = await col('beneficiarios').doc(id).collection('fotos').orderBy('criadoEm','desc').get();
+    const fotos = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    box.innerHTML = renderFotosBox(id, fotos);
+  } catch(e){ box.innerHTML = `<div class="alert alert-error">Erro ao carregar fotos: ${e.message}</div>`; }
+}
+function renderFotosBox(id, fotos){
+  const lista = fotos.length ? fotos.map(f => `
+    <div class="foto-item">
+      ${f.url ? `<img src="${f.url}" onclick="window.open('${f.url}','_blank')">` : ''}
+      <div class="fi-txt">
+        <div class="fi-date">${f.criadoEm ? new Date(f.criadoEm).toLocaleString('pt-BR') : ''}</div>
+        <div class="fi-desc">${f.desc || '<i style="color:var(--text3)">sem observação</i>'}</div>
+      </div>
+    </div>`).join('') : `<p style="color:var(--text3);font-size:13px;text-align:center;padding:16px">Nenhuma foto ou observação registrada ainda.</p>`;
+  return `<div class="card">
+    <div class="card-title">Adicionar <span>Foto / Observação</span></div>
+    <div class="form-row cols-2">
+      <div class="form-group"><label>Foto (opcional)</label><input type="file" id="foto-input-${id}" accept="image/*" capture="environment"></div>
+      <div class="form-group"><label>Observação</label><input type="text" id="foto-desc-${id}" placeholder="Ex: Fundação pronta, aguardando telhado"></div>
+    </div>
+    <button class="btn btn-green btn-sm" id="foto-btn-${id}" onclick="salvarFotoBenef('${id}')">💾 Adicionar</button>
+    <div style="margin-top:16px">${lista}</div>
+  </div>`;
+}
+async function salvarFotoBenef(id){
+  const fileEl = document.getElementById('foto-input-'+id);
+  const desc = document.getElementById('foto-desc-'+id).value.trim();
+  const file = fileEl.files[0];
+  if (!file && !desc) { alert('Adicione uma foto ou uma observação.'); return; }
+  const btn = document.getElementById('foto-btn-'+id);
+  btn.textContent = '⏳ Enviando...'; btn.disabled = true;
+  try {
+    let url = null;
+    if (file) {
+      const path = `beneficiarios/${id}/fotos/${Date.now()}_${file.name}`;
+      const ref = storage.ref(path);
+      await ref.put(file);
+      url = await ref.getDownloadURL();
+    }
+    await col('beneficiarios').doc(id).collection('fotos').add({
+      url, desc, criadoEm: Date.now(), criadoPor: currentUser ? currentUser.uid : null
+    });
+    await carregarFotosBenef(id);
+  } catch(e){
+    const msg = (e.code==='storage/unknown' || e.message?.includes('does not exist') || e.code==='storage/unauthorized')
+      ? 'O armazenamento de fotos ainda não foi ativado no sistema. Você pode salvar só a observação (sem foto) por enquanto, ou avisar o administrador.'
+      : 'Erro ao salvar: ' + e.message;
+    alert(msg); btn.textContent = '💾 Adicionar'; btn.disabled = false;
+  }
+}
+
+// ── Aba Material (checklist de recebimento) ──
+async function carregarMaterialBenef(id){
+  const box = document.getElementById('ft-material');
+  try {
+    const snap = await col('beneficiarios').doc(id).collection('materiais').orderBy('criadoEm').get();
+    const itens = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    box.innerHTML = renderMaterialBox(id, itens);
+  } catch(e){ box.innerHTML = `<div class="alert alert-error">Erro ao carregar checklist: ${e.message}</div>`; }
+}
+function renderMaterialBox(id, itens){
+  const total = itens.length, ok = itens.filter(i=>i.status==='ok').length, avariado = itens.filter(i=>i.status==='avariado').length;
+  const resumo = total ? `<div class="alert ${avariado?'alert-error':'alert-success'}" style="margin-bottom:14px">${ok}/${total} materiais conferidos${avariado?` · ⚠️ ${avariado} com avaria`:''}</div>` : '';
+  const linhas = itens.map(it => `
+    <div class="mat-row">
+      <span class="mat-nome">${it.nome}</span>
+      <button class="mat-status-btn ${it.status==='ok'?'ok':''}" onclick="marcarMaterial('${id}','${it.id}','ok')">✓ OK</button>
+      <button class="mat-status-btn ${it.status==='avariado'?'avariado':''}" onclick="marcarMaterial('${id}','${it.id}','avariado')">⚠️ Avariado</button>
+      <input type="text" class="acomp-date" style="flex:1;min-width:140px" placeholder="Observação (opcional)" value="${it.obs||''}" onchange="obsMaterial('${id}','${it.id}',this.value)">
+      <button class="btn btn-sm btn-red" onclick="excluirMaterial('${id}','${it.id}')">✕</button>
+    </div>`).join('') || `<p style="color:var(--text3);font-size:13px;text-align:center;padding:10px">Nenhum item no checklist ainda. Adicione os materiais recebidos abaixo.</p>`;
+  return `<div class="card">
+    <div class="card-title">Checklist de <span>Recebimento de Material</span></div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Confira cada material que chegou até a residência e marque se está OK ou avariado.</p>
+    ${resumo}
+    ${linhas}
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <input type="text" class="acomp-date" style="flex:1" id="mat-novo-${id}" placeholder="Ex: Caixa d'água, Tela, Cimento...">
+      <button class="btn btn-green btn-sm" onclick="addMaterial('${id}')">+ Adicionar Item</button>
+    </div>
+  </div>`;
+}
+async function addMaterial(id){
+  const inp = document.getElementById('mat-novo-'+id);
+  const nome = inp.value.trim();
+  if (!nome) return;
+  try {
+    await col('beneficiarios').doc(id).collection('materiais').add({ nome, status:'pendente', obs:'', criadoEm: Date.now() });
+    inp.value = '';
+    await carregarMaterialBenef(id);
+  } catch(e){ alert('Erro: '+e.message); }
+}
+async function marcarMaterial(id, itemId, status){
+  try { await col('beneficiarios').doc(id).collection('materiais').doc(itemId).update({ status }); await carregarMaterialBenef(id); }
+  catch(e){ alert('Erro: '+e.message); }
+}
+async function obsMaterial(id, itemId, obs){
+  try { await col('beneficiarios').doc(id).collection('materiais').doc(itemId).update({ obs }); }
+  catch(e){ console.error(e); }
+}
+async function excluirMaterial(id, itemId){
+  if (!confirm('Remover este item do checklist?')) return;
+  try { await col('beneficiarios').doc(id).collection('materiais').doc(itemId).delete(); await carregarMaterialBenef(id); }
+  catch(e){ alert('Erro: '+e.message); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// AGENDA DO TÉCNICO
+// ══════════════════════════════════════════════════════════════
+const AG_TIPO_LABEL = { visita:'Visita Técnica', reuniao:'Reunião', capacitacao:'Capacitação', entrega_material:'Entrega de Material', pagamento:'Pagamento', outro:'Outro' };
+const AG_MESES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+
+async function carregarAgenda(){
+  if (!currentUser) return;
+  try {
+    const snap = await col('agenda').where('tecnicoId','==',currentUser.uid).get();
+    _agenda = snap.docs.map(d => ({id:d.id, ...d.data()})).sort((a,b) => (a.data||'').localeCompare(b.data||''));
+  } catch(e){ console.error('agenda:', e); _agenda = []; }
+  renderAgenda();
+}
+function renderAgenda(){
+  const box = document.getElementById('lista-agenda');
+  if (!box) return;
+  if (!_agenda.length) { box.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-state-icon">🗓️</div><h3>Nenhum compromisso ainda</h3><p style="color:var(--text3);font-size:13px">Toque em "+ Novo Compromisso" para começar.</p></div></div>`; return; }
+  const hojeStr = new Date().toISOString().slice(0,10);
+  const pendentes = _agenda.filter(a => !a.feito);
+  const feitos = _agenda.filter(a => a.feito);
+  const item = a => {
+    const [y,m,d] = (a.data||'').split('-');
+    return `<div class="agenda-item ${a.feito?'feito':''}">
+      <div class="agenda-dia"><div class="ad-num">${d||'—'}</div><div class="ad-mes">${m?AG_MESES[+m-1]:''}</div></div>
+      <div style="flex:1;cursor:pointer" onclick="abrirModalAgenda('${a.id}')">
+        <div class="ag-tit">${a.titulo}</div>
+        <div class="ag-sub">${AG_TIPO_LABEL[a.tipo]||a.tipo}${a.hora?' · '+a.hora:''}${a.beneficiarioNome?' · '+a.beneficiarioNome:''}${a.data===hojeStr?' · <b style="color:var(--gold)">HOJE</b>':''}</div>
+      </div>
+      <input type="checkbox" ${a.feito?'checked':''} onchange="toggleAgendaFeito('${a.id}',this.checked)" title="Marcar concluído" style="width:20px;height:20px">
+    </div>`;
+  };
+  box.innerHTML = `${pendentes.map(item).join('')}${feitos.length ? `<div style="margin:16px 0 8px;font-size:11px;color:var(--text3);text-transform:uppercase;font-weight:700">Concluídos</div>${feitos.map(item).join('')}` : ''}`;
+}
+function abrirModalAgenda(id=''){
+  const sel = document.getElementById('ag-benef');
+  sel.innerHTML = '<option value="">— (opcional) —</option>' + _benefTecnico.map(b => `<option value="${b.id}">${b.nome}</option>`).join('');
+  if (id) {
+    const a = _agenda.find(x => x.id === id);
+    document.getElementById('modal-ag-title').textContent = 'Editar Compromisso';
+    document.getElementById('ag-id').value = a.id;
+    document.getElementById('ag-data').value = a.data || '';
+    document.getElementById('ag-hora').value = a.hora || '';
+    document.getElementById('ag-tipo').value = a.tipo || 'visita';
+    sel.value = a.beneficiarioId || '';
+    document.getElementById('ag-titulo').value = a.titulo || '';
+    document.getElementById('ag-obs').value = a.obs || '';
+  } else {
+    document.getElementById('modal-ag-title').textContent = 'Novo Compromisso';
+    document.getElementById('ag-id').value = '';
+    document.getElementById('ag-data').value = new Date().toISOString().slice(0,10);
+  }
+  abrirModal('modal-agenda');
+}
+async function salvarAgenda(){
+  const id = document.getElementById('ag-id').value;
+  const titulo = document.getElementById('ag-titulo').value.trim();
+  const data = document.getElementById('ag-data').value;
+  if (!titulo || !data) { alert('Preencha ao menos título e data.'); return; }
+  const benefSel = document.getElementById('ag-benef');
+  const benefNome = benefSel.value ? (benefSel.options[benefSel.selectedIndex].textContent) : '';
+  const payload = {
+    tecnicoId: currentUser.uid, tecnicoNome: document.getElementById('sidebar-user-name').textContent,
+    data, hora: document.getElementById('ag-hora').value,
+    tipo: document.getElementById('ag-tipo').value,
+    beneficiarioId: benefSel.value, beneficiarioNome: benefNome,
+    titulo, obs: document.getElementById('ag-obs').value.trim(),
+  };
+  try {
+    if (id) await col('agenda').doc(id).update(payload);
+    else await col('agenda').add({...payload, feito:false, criadoEm: firebase.firestore.FieldValue.serverTimestamp()});
+    fecharModal('modal-agenda');
+    await carregarAgenda();
+  } catch(e){ alert('Erro: '+e.message); }
+}
+async function toggleAgendaFeito(id, checked){
+  try { await col('agenda').doc(id).update({ feito: checked }); await carregarAgenda(); }
+  catch(e){ alert('Erro: '+e.message); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// QUESTIONÁRIO — QUINTAIS DAS MARIAS (estrutura provisória)
+// ══════════════════════════════════════════════════════════════
+async function carregarQuestMarias(){
+  if (!currentUser) return;
+  try {
+    const snap = await col('questionarios_marias').where('tecnicaId','==',currentUser.uid).get();
+    _questMarias = snap.docs.map(d => ({id:d.id, ...d.data()})).sort((a,b) => (b.criadoEmTs||0)-(a.criadoEmTs||0));
+  } catch(e){ console.error('quest marias:', e); _questMarias = []; }
+  renderQuestMarias();
+}
+function renderQuestMarias(){
+  const box = document.getElementById('lista-quest-marias');
+  if (!box) return;
+  if (!_questMarias.length) { box.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-state-icon">🌱</div><h3>Nenhum questionário respondido ainda</h3></div></div>`; return; }
+  box.innerHTML = _questMarias.map(q => `
+    <div class="card" style="margin-bottom:10px;cursor:pointer" onclick="abrirModalQuestMarias('${q.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:700">${q.nome}</div><div style="font-size:12px;color:var(--text3)">${fmtDataBR(q.data)||''}</div></div>
+        <span class="badge badge-green">Respondido</span>
+      </div>
+    </div>`).join('');
+}
+function abrirModalQuestMarias(id=''){
+  if (id) {
+    const q = _questMarias.find(x => x.id === id);
+    document.getElementById('modal-qm-title').textContent = 'Questionário — ' + q.nome;
+    document.getElementById('qm-id').value = q.id;
+    document.getElementById('qm-nome').value = q.nome || '';
+    document.getElementById('qm-data').value = q.data || '';
+    document.getElementById('qm-p1').value = q.respostas?.p1 || '';
+    document.getElementById('qm-p2').value = q.respostas?.p2 || '';
+    document.getElementById('qm-p3').value = q.respostas?.p3 || '';
+    document.getElementById('qm-p4').value = q.respostas?.p4 || '';
+    document.getElementById('qm-p5').value = q.respostas?.p5 || '';
+    document.getElementById('qm-p6').value = q.respostas?.p6 || '';
+    document.getElementById('qm-obs').value = q.obs || '';
+  } else {
+    document.getElementById('modal-qm-title').textContent = 'Questionário — Quintais das Marias';
+    ['qm-id','qm-nome','qm-p1','qm-p2','qm-p3','qm-p4','qm-p5','qm-p6','qm-obs'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('qm-data').value = new Date().toISOString().slice(0,10);
+  }
+  abrirModal('modal-quest-marias');
+}
+async function salvarQuestMarias(){
+  const id = document.getElementById('qm-id').value;
+  const nome = document.getElementById('qm-nome').value.trim();
+  if (!nome) { alert('Informe o nome da beneficiária.'); return; }
+  const payload = {
+    tecnicaId: currentUser.uid, tecnicaNome: document.getElementById('sidebar-user-name').textContent,
+    nome, data: document.getElementById('qm-data').value,
+    respostas: { p1:document.getElementById('qm-p1').value, p2:document.getElementById('qm-p2').value, p3:document.getElementById('qm-p3').value,
+                 p4:document.getElementById('qm-p4').value, p5:document.getElementById('qm-p5').value, p6:document.getElementById('qm-p6').value },
+    obs: document.getElementById('qm-obs').value.trim(),
+  };
+  try {
+    if (id) await col('questionarios_marias').doc(id).update(payload);
+    else await col('questionarios_marias').add({...payload, criadoEmTs: Date.now(), criadoEm: firebase.firestore.FieldValue.serverTimestamp()});
+    fecharModal('modal-quest-marias');
+    await carregarQuestMarias();
+  } catch(e){ alert('Erro: '+e.message); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// AVALIAÇÃO DE TÉCNICOS (checklist do supervisor com nota)
+// ══════════════════════════════════════════════════════════════
+let _avCriteriosNotas = {};
+function abrirModalAvaliacao(){
+  const sel = document.getElementById('av-tecnico');
+  sel.innerHTML = '<option value="">Selecione...</option>' + _tecnicos.map(t => `<option value="${t.id}" data-nome="${t.nome}">${t.nome}</option>`).join('');
+  document.getElementById('av-data').value = new Date().toISOString().slice(0,10);
+  document.getElementById('av-obs').value = '';
+  _avCriteriosNotas = {};
+  document.getElementById('av-criterios').innerHTML = AV_CRITERIOS.map((c,i) => `
+    <div class="aval-crit">
+      <span style="font-size:13px">${c}</span>
+      <div class="aval-nota" id="av-crit-${i}">
+        ${[0,1,2,3,4,5,6,7,8,9,10].map(n => `<button onclick="notaCriterio(${i},${n})">${n}</button>`).join('')}
+      </div>
+    </div>`).join('');
+  atualizarNotaFinal();
+  abrirModal('modal-avaliacao');
+}
+function notaCriterio(i, nota){
+  _avCriteriosNotas[i] = nota;
+  document.querySelectorAll(`#av-crit-${i} button`).forEach((b,idx) => b.classList.toggle('sel', idx===nota));
+  atualizarNotaFinal();
+}
+function atualizarNotaFinal(){
+  const notas = Object.values(_avCriteriosNotas);
+  const el = document.getElementById('av-nota-final');
+  if (!notas.length) { el.textContent = '—'; return; }
+  const media = notas.reduce((s,n)=>s+n,0) / AV_CRITERIOS.length;
+  el.textContent = media.toFixed(1);
+}
+async function salvarAvaliacao(){
+  const sel = document.getElementById('av-tecnico');
+  if (!sel.value) { alert('Selecione o técnico.'); return; }
+  if (Object.keys(_avCriteriosNotas).length < AV_CRITERIOS.length) { alert('Avalie todos os critérios antes de salvar.'); return; }
+  const notaFinal = Object.values(_avCriteriosNotas).reduce((s,n)=>s+n,0) / AV_CRITERIOS.length;
+  const payload = {
+    tecnicoId: sel.value, tecnicoNome: sel.options[sel.selectedIndex].dataset.nome,
+    avaliadorId: currentUser.uid, avaliadorNome: document.getElementById('sidebar-user-name').textContent,
+    data: document.getElementById('av-data').value,
+    criterios: AV_CRITERIOS.map((item,i) => ({ item, nota: _avCriteriosNotas[i] })),
+    notaFinal: Math.round(notaFinal*10)/10,
+    obs: document.getElementById('av-obs').value.trim(),
+  };
+  try {
+    await col('avaliacoes_tecnico').add({...payload, criadoEm: firebase.firestore.FieldValue.serverTimestamp(), criadoEmTs: Date.now()});
+    fecharModal('modal-avaliacao');
+    await carregarAvaliacoesTecnicos();
+    document.getElementById('filtro-aval-tecnico').value = sel.value;
+    renderHistoricoAvaliacoes();
+  } catch(e){ alert('Erro: '+e.message); }
+}
+async function carregarAvaliacoesTecnicos(){
+  try {
+    const snap = await col('avaliacoes_tecnico').get();
+    _avaliacoes = snap.docs.map(d => ({id:d.id, ...d.data()})).sort((a,b) => (b.criadoEmTs||0)-(a.criadoEmTs||0));
+  } catch(e){ console.error('avaliações:', e); _avaliacoes = []; }
+  const sel = document.getElementById('filtro-aval-tecnico');
+  if (sel) sel.innerHTML = '<option value="">Selecione um técnico...</option>' + _tecnicos.map(t => `<option value="${t.id}">${t.nome}</option>`).join('');
+  renderHistoricoAvaliacoes();
+}
+function renderHistoricoAvaliacoes(){
+  const box = document.getElementById('historico-avaliacoes');
+  if (!box) return;
+  const tecId = document.getElementById('filtro-aval-tecnico')?.value;
+  if (!tecId) { box.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✅</div><h3>Selecione um técnico</h3><p style="color:var(--text3);font-size:13px">Veja o histórico de avaliações ou crie uma nova.</p></div>`; return; }
+  const lista = _avaliacoes.filter(a => a.tecnicoId === tecId);
+  if (!lista.length) { box.innerHTML = `<div class="empty-state"><h3>Sem avaliações registradas para este técnico</h3></div>`; return; }
+  const media = lista.reduce((s,a)=>s+(a.notaFinal||0),0) / lista.length;
+  box.innerHTML = `<div class="kpi" style="margin-bottom:14px"><div class="kpi-val">${media.toFixed(1)}</div><div class="kpi-label">Nota Média (${lista.length} avaliações)</div></div>` +
+    lista.map(a => `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <b>${fmtDataBR(a.data)}</b><span class="badge ${a.notaFinal>=7?'badge-green':a.notaFinal>=5?'badge-gold':'badge-red'}">Nota ${a.notaFinal}</span>
+      </div>
+      ${(a.criterios||[]).map(c => `<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:var(--text2)"><span>${c.item}</span><b>${c.nota}</b></div>`).join('')}
+      ${a.obs ? `<p style="font-size:12px;color:var(--text3);margin-top:8px;border-top:1px solid var(--border);padding-top:8px">${a.obs}</p>` : ''}
+      <div style="font-size:10px;color:var(--text3);margin-top:6px">Avaliado por ${a.avaliadorNome||'—'}</div>
+    </div>`).join('');
+}
+async function carregarMinhasAvaliacoes(){
+  const box = document.getElementById('lista-minhas-avaliacoes');
+  if (!box || !currentUser) return;
+  try {
+    const snap = await col('avaliacoes_tecnico').where('tecnicoId','==',currentUser.uid).get();
+    const lista = snap.docs.map(d => ({id:d.id, ...d.data()})).sort((a,b) => (b.criadoEmTs||0)-(a.criadoEmTs||0));
+    if (!lista.length) { box.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-state-icon">⭐</div><h3>Nenhuma avaliação registrada ainda</h3></div></div>`; return; }
+    const media = lista.reduce((s,a)=>s+(a.notaFinal||0),0) / lista.length;
+    box.innerHTML = `<div class="kpi" style="margin-bottom:14px"><div class="kpi-val">${media.toFixed(1)}</div><div class="kpi-label">Sua Nota Média</div></div>` +
+      lista.map(a => `<div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <b>${fmtDataBR(a.data)}</b><span class="badge ${a.notaFinal>=7?'badge-green':a.notaFinal>=5?'badge-gold':'badge-red'}">Nota ${a.notaFinal}</span>
+        </div>
+        ${a.obs ? `<p style="font-size:12px;color:var(--text2)">${a.obs}</p>` : ''}
+      </div>`).join('');
+  } catch(e){ box.innerHTML = `<div class="alert alert-error">Erro ao carregar: ${e.message}</div>`; }
+}
+
+// ══════════════════════════════════════════════════════════════
+// EVOLUÇÃO POR ÁREA (relatório em tempo real, admin/coordenador)
+// ══════════════════════════════════════════════════════════════
+async function carregarEvolucaoArea(){
+  const box = document.getElementById('evolucao-area-conteudo');
+  box.innerHTML = `<div class="loading"><span class="spin">⏳</span></div>`;
+  try {
+    const snap = await col('beneficiarios').get();
+    _benef = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    const selProg = document.getElementById('filtro-evol-programa');
+    if (selProg && !selProg.dataset.filled) {
+      selProg.innerHTML = '<option value="">Todos os programas</option>' + _programas.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+      selProg.dataset.filled = '1';
+    }
+    renderEvolucaoArea();
+  } catch(e){ box.innerHTML = `<div class="alert alert-error">Erro: ${e.message}</div>`; }
+}
+function renderEvolucaoArea(){
+  const box = document.getElementById('evolucao-area-conteudo');
+  const progFiltro = document.getElementById('filtro-evol-programa')?.value;
+  let lista = _benef;
+  if (progFiltro) lista = lista.filter(b => b.programaId === progFiltro);
+  if (!lista.length) { box.innerHTML = `<div class="card"><div class="empty-state"><h3>Nenhum beneficiário encontrado</h3></div></div>`; return; }
+  // agrupa por área (comunidade/município)
+  const porArea = {};
+  lista.forEach(b => {
+    const area = b.comunidade || b.municipioNome || 'Sem área definida';
+    if (!porArea[area]) porArea[area] = [];
+    porArea[area].push(b);
+  });
+  const areas = Object.keys(porArea).sort();
+  const totalGeral = lista.length;
+  const concluidosGeral = lista.filter(b => faseDe(b) === 'assinatura_termo').length;
+  const kpis = `<div class="grid-4" style="margin-bottom:16px">
+    <div class="kpi"><div class="kpi-val">${areas.length}</div><div class="kpi-label">Áreas</div></div>
+    <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-val">${totalGeral}</div><div class="kpi-label">Beneficiários</div></div>
+    <div class="kpi" style="border-left-color:var(--green2)"><div class="kpi-val">${concluidosGeral}</div><div class="kpi-label">Concluídos</div></div>
+    <div class="kpi" style="border-left-color:var(--gold)"><div class="kpi-val">${totalGeral?Math.round(concluidosGeral/totalGeral*100):0}%</div><div class="kpi-label">Evolução Geral</div></div>
+  </div>`;
+  const cards = areas.map(area => {
+    const bs = porArea[area];
+    const porFase = FASE_ORDEM.map(f => bs.filter(b => faseDe(b)===f).length);
+    const concl = porFase[FASE_ORDEM.length-1];
+    const perc = Math.round(bs.reduce((s,b)=>s+((FASE_ORDEM.indexOf(faseDe(b))+1)/FASE_ORDEM.length*100),0)/bs.length);
+    const barras = FASE_ORDEM.map((f,i) => porFase[i] ? `<span class="badge ${FASE_COR[f]}" style="margin:2px 3px 2px 0" title="${FASE_LABELS[f]}">${FASE_LABELS[f]}: ${porFase[i]}</span>` : '').join('');
+    return `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-weight:800;font-size:14px">📍 ${area}</div>
+        <div style="font-size:12px;color:var(--text3)">${bs.length} beneficiário(s) · ${perc}% de evolução média</div>
+      </div>
+      <div class="mini-prog" style="max-width:100%"><i style="width:${perc}%"></i></div>
+      <div style="margin-top:10px">${barras}</div>
+    </div>`;
+  }).join('');
+  box.innerHTML = kpis + cards;
 }
 
 // ─── INIT ──────────────────────────────────────────────────────
@@ -2405,7 +3196,9 @@ const PAGE_TITLES = {
   beneficiarios:'Beneficiários', municipios:'Municípios',
   execucao:'Execução Físico-Financeira', relatorios:'Relatórios',
   tecnicos:'Técnicos', usuarios:'Usuários',
-  'meus-beneficiarios':'Meus Beneficiários', 'minha-agenda':'Minha Agenda'
+  'meus-beneficiarios':'Meus Beneficiários', 'minha-agenda':'Minha Agenda',
+  'ficha-benef':'Ficha do Beneficiário', 'questionario-marias':'Questionário Marias',
+  'minhas-avaliacoes':'Minhas Avaliações', 'evolucao-area':'Evolução por Área', 'avaliar-tecnicos':'Avaliar Técnicos'
 };
 function navigate(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
